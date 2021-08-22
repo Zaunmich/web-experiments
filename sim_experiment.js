@@ -5,6 +5,12 @@ function objOrFun2fun(objOrFun) {
 function objOrArray2array(objOrArray) {
     if (Array.isArray(objOrArray)) { return objOrArray; } else { return [objOrArray]; }
 };
+function vectAdd(vecA,vecB){
+    return vecA.map((e,i)=>{return e+vecB[i]});
+};
+function vectScale(vecA,scaling){
+    return vecA.map((e,i)=>{return e*scaling});
+};
 
 class BaseSim {
     constructor(){
@@ -13,7 +19,7 @@ class BaseSim {
         this.time = 0;
         this.nSim = 0;
         
-        this.simStep = 1/60; // simulation timestep in seconds
+        this.simStep = 1/100; // simulation timestep in seconds
         this.simMulti = 1; // multiplicator for real-time / slow-mo / speed-up
         this.plotMulti = 6; // multiplicator for the update-rate of a plotting function
 
@@ -25,7 +31,7 @@ class BaseSim {
     get isRunning(){return this._isRunning;};
     // methods
     init(){
-        this.states = [10,0];
+        this.states = [0,0];
         this.inputs = [0];
         this.disturbances = [0];
         this.reference = 0;
@@ -62,8 +68,7 @@ class BaseSim {
 
         
         // update the states
-        let x_dot = self.systemEquation(t,x,u,z);
-        let x_new = self._fwdEulerInt(x,x_dot,Ts);
+        let x_new = self._rk4Int(Ts,t,x,u,z);
 
 
         // is it time to call the plotting function?
@@ -81,11 +86,22 @@ class BaseSim {
         return self.outputEquation(t,x,u,z);
 
     };
-    _fwdEulerInt(x0,x_dot,Ts){
-        return x0.map((x,i)=>x+x_dot[i]*Ts);
+    _fwdEulerInt(Ts,t,x,u,z){
+        let x_dot = this.systemEquation(t,x,u,z);
+        return vectAdd(x,vectScale(x_dot,Ts));
     };
-    // TODO: also add a rk4 method
+    _rk4Int(Ts,t,x,u,z){
+        let k1 = this.systemEquation(t,x,u,z);
+        let k2 = this.systemEquation(t+Ts/2,vectAdd(x,vectScale(k1,Ts/2)),u,z);
+        let k3 = this.systemEquation(t+Ts/2,vectAdd(x,vectScale(k2,Ts/2)),u,z);
+        let k4 = this.systemEquation(t+Ts,vectAdd(x,vectScale(k3,Ts)),u,z);
+        var temp = vectAdd(k1,vectScale(k2,2));
+        temp = vectAdd(temp,vectScale(k3,2));
+        temp = vectAdd(temp,k4);
+        return vectAdd(x,vectScale(temp,Ts/6))
+    }
     start(){
+        if (this._isRunning){return false;}
         this._timer = setInterval(this.update,this.simStep*1000*this.simMulti,this);
         this._isRunning = true;
     };
