@@ -14,7 +14,6 @@ function vectScale(vecA,scaling){
 
 class BaseSim {
     constructor(){
-        this.params = {K:1,D:.1};
 
         this.time = 0;
         this.nSim = 0;
@@ -35,6 +34,7 @@ class BaseSim {
         this.inputs = [0];
         this.disturbances = [0];
         this.reference = 0;
+        this.params = {K:1,D:.1};
     };
     controlLaw(t,x,w,z){
         // must return u(t)
@@ -68,7 +68,8 @@ class BaseSim {
 
         
         // update the states
-        let x_new = self._rk4Int(Ts,t,x,u,z);
+        // let x_new = self._fwdEulerInt(Ts,t,x,u,z); // fwd euler integration
+        let x_new = self._rk4Int(Ts,t,x,u,z); // runge kutta 4th order
 
 
         // is it time to call the plotting function?
@@ -115,4 +116,45 @@ class BaseSim {
 
         this.init();
     }
+};
+
+class FlexJointBase extends BaseSim{
+    constructor(){
+        super();
+    }
+    // overwrites
+    init(){
+        this.states = [0,0,0,0];
+        this.inputs = [0];
+        this.disturbances = [0];
+        this.reference = 0;
+        this.params = {Rm:1.4637,Km:0.0071,kg:70,Jeq:0.0063,Jl:0.0124,Beq:0.0619,Ks:2.2376};
+    };
+    systemEquation(t,x,u,z){
+        // must return x_dot(t)
+        let params = this.params;
+
+        // vrilic presi
+        // let a=params.Ks/params.Jeq,
+        // b=(params.Km^2*params.kg^2+params.Beq*params.Rm)/(params.Rm*params.Jeq),
+        // c=(params.Km*params.kg)/(params.Rm*params.Jeq),
+        // d=(params.Ks*(params.Jeq+params.Jl))/(params.Jeq*params.Jl);
+
+        let a=params.Ks/params.Jeq,
+        b=(params.Beq)/(params.Jeq),
+        c=(1)/(params.Jeq),
+        d=(params.Ks*(params.Jeq+params.Jl))/(params.Jeq*params.Jl);
+
+        let x_dot = [
+            x[2],
+            x[3],
+            +x[1]*a - x[2]*b + u[0]*c,
+            -x[1]*d + x[2]*b - u[0]*c + z[0]/params.Jeq
+        ];
+        return x_dot;
+    };
+    outputEquation(t,x,u,z){
+        // must return y(t)
+        return x[0]+x[1];
+    };
 }
