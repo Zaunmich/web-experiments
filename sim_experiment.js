@@ -145,8 +145,11 @@ class FlexJointBase extends BaseSim{
         c=(1)/(params.Jeq),
         d=(params.Ks*(params.Jeq+params.Jl))/(params.Jeq*params.Jl);
 
+        // define a value to force the base to 0 deg
+        let epsilon = 0.1; 
+
         let x_dot = [
-            x[2],
+            x[2] - x[0]*epsilon,
             x[3],
             +x[1]*a - x[2]*b + u[0]*c,
             -x[1]*d + x[2]*b - u[0]*c + z[0]/params.Jeq
