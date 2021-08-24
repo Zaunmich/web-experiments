@@ -29,6 +29,9 @@ class BaseSim {
     }
     // getters/setters
     get isRunning() { return this._isRunning; };
+    get y() { return this.outputEquation(this.time, this.states, this.u, this.disturbances) };
+    get u() { return this.controlLaw(this.time, this.states, this.reference, this.disturbances) };
+    get plotUpdate() { this.plotFun(this.time, this.states, this.u, this.disturbances, this.y) };
     // methods
     init() {
         this.states = [0, 0];
@@ -65,18 +68,18 @@ class BaseSim {
 
 
         // compute the control law
-        let u = self.controlLaw(t, x, w, z);
+        let u = self.u;
 
 
         // update the states
-        let x_new = self._fwdEulerInt(Ts,t,x,u,z); // fwd euler integration
-        // let x_new = self._rk4Int(Ts, t, x, u, z); // runge kutta 4th order
+        // let x_new = self._fwdEulerInt(Ts, t, x, u, z); // fwd euler integration
+        let x_new = self._rk4Int(Ts, t, x, u, z); // runge kutta 4th order
 
 
         // is it time to call the plotting function?
         if (self.nSim % self.plotMulti == 0) {
-            let y = self.outputEquation(t, x, u, z);
-            self.plotFun(t, x, u, z, y);
+            let y = self.y;
+            self.plotUpdate;
         };
 
 
@@ -86,7 +89,7 @@ class BaseSim {
         self.nSim += 1;
 
         // call output function
-        return self.outputEquation(t, x, u, z);
+        return self.y;
 
     };
     _fwdEulerInt(Ts, t, x, u, z) {
@@ -117,7 +120,7 @@ class BaseSim {
         this.nSim = 0;
 
         this.init();
-    }
+    };
 };
 
 class FlexJointBase extends BaseSim {
@@ -131,8 +134,17 @@ class FlexJointBase extends BaseSim {
         this.disturbances = [0];
         this.reference = 0;
         // this.params = {Rm:1.4637,Km:0.0071,kg:70,Jeq:0.0063,Jl:0.0124,Beq:0.0619,Ks:2.2376}; //Vrilic presi
-        this.params = { B_m: 0.069648931118612, c: 0.00321743290087495, J_m: 0.00362292517436335, J_r: 0.00397169530427267, k: 0.2015461160848, K_m: 0.558365859391204, MC: 3.44977338113348e-05, R_m: 2.60477484520831 }; //Dennis matlab
-
+        //Dennis matlab
+        this.params = {
+            B_m: 0.069648931118612,
+            J_m: 0.003622925174363,
+            J_r: 0.003971695304273,
+            K_m: 0.558365859391204,
+            MC: 3.449773381133479e-05,
+            R_m: 2.604774845208310,
+            c: 0.003217432900875,
+            k: 0.201546116084800,
+        }
     };
     systemEquation(t, x, u, z) {
         // must return x_dot(t)
@@ -173,17 +185,16 @@ class FlexJointBase extends BaseSim {
             R_m = params.R_m;
         // nonlinear
         x_dot = [
-            x[3 - 1] - x[0]*epsilon,
+            x[3 - 1] - x[0] * epsilon,
             x[4 - 1],
-            1 / J_m * (k * x[2 - 1] - (B_m + K_m ^ 2 / R_m) * x[3 - 1] - MC * Math.tanh(1000 * x[3 - 1]) + c * x[4 - 1] + K_m / R_m * u[1 - 1] + z[0]),
-            -(k / J_r + k / J_m) * x[2 - 1] + (B_m + K_m ^ 2 / R_m) / J_m * x[3 - 1] + MC * Math.tanh(10 * x[3 - 1]) / J_m - (c / J_r + c / J_m) * x[4 - 1] - K_m / R_m / J_m * u[1 - 1]
+            1 / J_m * (k * x[2 - 1] - (B_m + K_m ** 2 / R_m) * x[3 - 1] - MC * Math.tanh(1000 * x[3 - 1]) + c * x[4 - 1] + K_m / R_m * u[1 - 1] + z[0]),
+            -(k / J_r + k / J_m) * x[2 - 1] + (B_m + K_m ** 2 / R_m) / J_m * x[3 - 1] + MC * Math.tanh(10 * x[3 - 1]) / J_m - (c / J_r + c / J_m) * x[4 - 1] - K_m / R_m / J_m * u[1 - 1]
         ];
-        // TODO: find out why the model drifts!
 
         return x_dot;
     };
     outputEquation(t, x, u, z) {
-        // must return y(t)
-        return [x[0], x[0]+x[1]];
+        // output are head angle (measured from global zero) and arm angle (measured from global zero) in radiants
+        return [x[0], x[0] + x[1]];
     };
 }

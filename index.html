@@ -76,10 +76,10 @@
         <button type="button" onclick="resetAll()">Reset</button>
         <br>
         <label for="amplitude">Input amplitude:</label>
-        <input type="number" name="amplitude" id="amplitude" value="0" step="0.1">V
+        <input type="number" name="amplitude" id="amplitude" value="1" step="1">V
         <br>
         <label for="frequency">Input frequency:</label>
-        <input type="number" name="frequency" id="frequency" value="0" step="1">Hz
+        <input type="number" name="frequency" id="frequency" value="1" step="1">Hz
     </div>
     <div id="mychart" class="chart"></div>
 
@@ -215,7 +215,7 @@
 
         // show the axes
         let outGraphXAxisGroup = outGraph.append("g");
-        outGraphXAxisGroup.append("g").classed('axes',true).call(d3.axisBottom(Xout));
+        outGraphXAxisGroup.append("g").classed('axes', true).call(d3.axisBottom(Xout));
         let outGraphYAxisGroup = outGraph.append("g").call(d3.axisLeft(Yout));
 
         // add titles to the axes
@@ -269,10 +269,10 @@
         let Xinp = d3.scaleLinear().domain([0, inputGraph.tmax]).range([0, Xglobal(rowCol[1].col[1].w)]).nice();
         // Add Y axis
         let Yinp = d3.scaleLinear().domain([-inputGraph.initlMax, inputGraph.initlMax]).range([Yglobal(rowCol[1].col[1].h) / 2, -Yglobal(rowCol[1].col[1].h) / 2]);
-        
+
         // container for the data
         inputGraph.append("g").append("path").classed('inpLine', true);
-        
+
         // show the axes
         let inputGraphXAxisGroup = inputGraph.append("g").call(d3.axisBottom(Xinp));
         // TODO: change the X axis so that it behaves like the X axis of the output graph (moves around)
@@ -321,6 +321,7 @@
         function resetAll() {
             data = [];
             simpleSim.reset();
+            simpleSim.plotUpdate;
         }
 
 
@@ -340,7 +341,7 @@
         let simpleSim = new FlexJointBase();
         simpleSim.plotFun = function (t, x, u, z, y) {
 
-            data.push({ t: t, x: x, u: u, headAngle:y[0],armAngle:y[1]});
+            data.push({ t: t, x: x, u: u, headAngle: y[0], armAngle: y[1] });
 
             // clip everything that is older than tmax
             data = data.filter((e) => { return e.t >= t - outGraph.tmax });
@@ -350,10 +351,11 @@
 
 
         };
-        var amp = 0, freq = 0;
+        var amp = parseFloat($('#amplitude').val()), freq = parseFloat($('#frequency').val());
         sinCtrlLaw = function (t, x, w, z) {
             return [Math.sin(t * Math.PI * 2 * freq) * amp];
         };
+        simpleSim.controlLaw = sinCtrlLaw;
         $('#amplitude').on('change', function () { amp = this.value; simpleSim.controlLaw = sinCtrlLaw });
         $('#frequency').on('change', function () { freq = this.value; simpleSim.controlLaw = sinCtrlLaw });
     </script>
