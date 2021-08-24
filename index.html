@@ -75,6 +75,12 @@
         <button type="button" onclick="stopAll()">Stop</button>
         <button type="button" onclick="resetAll()">Reset</button>
         <br>
+        <label for="simSpeed">Simulation speed:</label><br>
+        <small> Slow-Motion </small>
+        <input type="range" name="simSpeed" min="1" max="100" value="100" class="slider"
+            onchange="setRealTimeFactor(this.value)">
+        <small> Real-Time </small>
+        <br>
         <label for="amplitude">Input amplitude:</label>
         <input type="number" name="amplitude" id="amplitude" value="1" step="1">V
         <br>
@@ -85,7 +91,7 @@
 
     <script>
         // set the dimensions and margins of the graph
-        const margin = { top: 10, right: 30, bottom: 30, left: 0 },
+        const margin = { top: 10, right: 30, bottom: 30, left: 10 },
             width = 800 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
@@ -126,13 +132,13 @@
 
         // TODO: change the layout, so that the flexible joint experiment is in the center of the first row
         // top row columns
-        rowCol[0].col = [{ x: 10, y: rowCol[0].h / 2, w: rowCol[0].w * .4, h: rowCol[0].h },];
+        rowCol[0].col = [{ x: 15, y: rowCol[0].h / 2, w: rowCol[0].w * .4, h: rowCol[0].h },];
         rowCol[0].col.push({ x: rowCol[0].col[0].w, y: rowCol[0].h / 2, w: rowCol[0].w * .6, h: rowCol[0].h * .9 });
         let rowTopC1 = rowTop.append("g").attr("transform", `translate(${Xglobal(rowCol[0].col[0].x)},${Yglobal(rowCol[0].col[0].y)})`);
         let rowTopC2 = rowTop.append("g").attr("transform", `translate(${Xglobal(rowCol[0].col[1].x)},${Yglobal(rowCol[0].col[1].y)})`);
 
         // bottom row columns
-        rowCol[1].col = [{ x: 10, y: rowCol[1].h / 2, w: rowCol[1].w * .4, h: rowCol[1].h },];
+        rowCol[1].col = [{ x: 15, y: rowCol[1].h / 2, w: rowCol[1].w * .4, h: rowCol[1].h },];
         rowCol[1].col.push({ x: rowCol[1].col[0].w, y: rowCol[1].h / 2, w: rowCol[1].w * .6, h: rowCol[1].h * .9 });
         let rowBotC1 = rowBot.append("g").attr("transform", `translate(${Xglobal(rowCol[1].col[0].x)},${Yglobal(rowCol[1].col[0].y)})`);
         let rowBotC2 = rowBot.append("g").attr("transform", `translate(${Xglobal(rowCol[1].col[1].x)},${Yglobal(rowCol[1].col[1].y)})`);
@@ -201,9 +207,11 @@
         /*
         /////////////////// draw the output graph ///////////////////
         */
+        const plotTime = 20; // in seconds
+
         let outGraph = rowTopC2;
-        outGraph['tmax'] = 20; // in seconds
-        outGraph['angleStart'] = 5; // in deg
+        outGraph['tmax'] = plotTime; // in seconds
+        outGraph['angleStart'] = 1; // in deg
 
         // Add X axis
         let Xout = d3.scaleLinear().domain([0, outGraph.tmax]).range([0, Xglobal(rowCol[0].col[1].w)]).nice();
@@ -226,7 +234,7 @@
         outGraph.append("text").attr("text-anchor", "middle")
             .attr("transform", "rotate(-90)")
             .attr("y", -40).attr("x", 0)
-            .text("Angle in deg")
+            .text("Arm angle in deg")
 
         // line helper function
         // TODO: draw also the second output?
@@ -236,19 +244,26 @@
             .y(d => Yout(rad2deg(d.armAngle)));
 
         function updateOutGraph(data) {
+            // compute visible data
+            let vis_data = d3.filter(data, (d, i, a) => d.t >= a.last().t - outGraph.tmax);
             var u = outGraph.selectAll('.outLine')
-                .data([data]);
+                .data([vis_data]);
 
             u.enter()
                 .append("path").merge(u)
                 .attr("d", outLine)
                 .classed('outLine', true);
-
-            // update Yaxis
-            Yout.domain([d3.min(data, (d) => rad2deg(d.armAngle)) - outGraph.angleStart, d3.max(data, (d) => rad2deg(d.armAngle)) + outGraph.angleStart]).nice().clamp(true);
-            outGraphYAxisGroup.call(d3.axisLeft(Yout));
+            // update Xaxis
+            Xout.domain([0, outGraph.tmax]);
+            outGraphXAxisGroup.select(".axes").call(d3.axisBottom(Xout));
             // update Xaxis location
             outGraphXAxisGroup.attr("transform", `translate(0,${Yout(0)})`)
+
+            // update Yaxis
+            Yout.domain(
+                [d3.min(vis_data, (d) => rad2deg(d.armAngle)) - outGraph.angleStart, d3.max(vis_data, (d) => rad2deg(d.armAngle)) + outGraph.angleStart]
+            ).nice().clamp(true);
+            outGraphYAxisGroup.call(d3.axisLeft(Yout));
         };
 
         /*
@@ -262,7 +277,7 @@
         /////////////////// draw the input graph ///////////////////
         */
         let inputGraph = rowBotC2;
-        inputGraph['tmax'] = 20; // in seconds
+        inputGraph['tmax'] = plotTime; // in seconds
         inputGraph['initlMax'] = 1; // initial axis size
 
         // Add X axis
@@ -296,16 +311,22 @@
             .y(d => Yinp(d.u[0]));
 
         function updateinputGraph(data) {
+            // compute visible data
+            let vis_data = d3.filter(data, (d, i, a) => d.t >= a.last().t - inputGraph.tmax);
             // update line
             var u = inputGraph.selectAll('.inpLine')
-                .data([data]);
+                .data([vis_data]);
 
             u.enter()
                 .append("path").merge(u)
                 .attr("d", inpLine)
                 .classed('inpLine', true);
+
+            // update Xaxis
+            Xinp.domain([0, inputGraph.tmax]);
+            inputGraphXAxisGroup.call(d3.axisBottom(Xinp));
             // update Yaxis
-            Yinp.domain([-d3.max(data, (e) => Math.abs(e.u)), d3.max(data, (e) => Math.abs(e.u))]);
+            Yinp.domain([-d3.max(vis_data, (e) => Math.abs(e.u)), d3.max(vis_data, (e) => Math.abs(e.u))]);
             inputGraphYAxisGroup.call(d3.axisLeft(Yinp));
         };
 
@@ -314,15 +335,25 @@
         */
         function startAll() {
             simpleSim.start();
-        }
+        };
         function stopAll() {
             simpleSim.stop();
-        }
+        };
         function resetAll() {
             data = [];
             simpleSim.reset();
             simpleSim.plotUpdate;
-        }
+        };
+        function setRealTimeFactor(input) {
+            let minFactor = 0.1,
+                maxFactor = 1;
+
+            let scale = d3.scaleLinear().domain([1, 100]).range([minFactor, maxFactor]);
+            let factor = scale(input);
+            simpleSim.simMulti = factor
+            outGraph.tmax = plotTime * factor;
+            inputGraph.tmax = plotTime * factor;
+        };
 
 
         /*
@@ -330,6 +361,7 @@
         */
         function deg2rad(deg) { return deg / 360 * Math.PI * 2 };
         function rad2deg(rad) { return rad / Math.PI / 2 * 360 };
+        if (!Array.prototype.last) { Array.prototype.last = function () { return this[this.length - 1]; }; }; // enables [1,2,3].last()
 
         /*
         /////////////////// placeholder functions ///////////////////
@@ -344,7 +376,7 @@
             data.push({ t: t, x: x, u: u, headAngle: y[0], armAngle: y[1] });
 
             // clip everything that is older than tmax
-            data = data.filter((e) => { return e.t >= t - outGraph.tmax });
+            data = data.filter((e) => { return e.t >= t - plotTime });
             updateFlexJointAngles(rad2deg(y[0]), rad2deg(y[1]));
             updateOutGraph(data);
             updateinputGraph(data);

@@ -19,26 +19,45 @@ class BaseSim {
         this.nSim = 0;
 
         this.simStep = 1 / 100; // simulation timestep in seconds
-        this.simMulti = 1; // multiplicator for real-time / slow-mo / speed-up
-        this.plotMulti = 6; // multiplicator for the update-rate of a plotting function
         // TODO: have a working slow-motion mode
+        // choose integration method. Available choices: _fwdEulerInt, _rk4Int
+        this.integrationMethod = this._rk4Int;
 
+        // internal parameters
         this._isRunning = false;
+        this._simMulti = 1;  // multiplicator for the sampling time of the simulation
+        this._plotStep = 1 / 60; // plotting timestep in seconds
 
         this.init();
     }
     // getters/setters
     get isRunning() { return this._isRunning; };
-    get y() { return this.outputEquation(this.time, this.states, this.u, this.disturbances) };
-    get u() { return this.controlLaw(this.time, this.states, this.reference, this.disturbances) };
-    get plotUpdate() { this.plotFun(this.time, this.states, this.u, this.disturbances, this.y) };
+    get Ts() { return this.simStep * this._simMulti };
+    set Ts(target) { throw 'Set simRate instead of Ts!' };
+    get t() { return this.time };
+    get x() { return this.states };
+    get z() { return this.disturbances };
+    get w() { return this.reference };
+    get y() { return this.outputEquation(this.t, this.x, this.u, this.z) };
+    get u() { return this.controlLaw(this.t, this.x, this.w, this.z) };
+    get plotUpdate() { this.plotFun(this.t, this.x, this.u, this.z, this.y) };
+    set plotRate(rate) { this._plotStep = Math.round(this.simRate / rate) / this.simRate }; // set target plot-refresh rate in Hz
+    get plotRate() { return 1 / (this._plotStep) }; // get the current plot-refresh rate in Hz
+    get plotMulti() { return Math.round(this.simRate / this.plotRate) };
+    get simRate() { return 1 / this.simStep };
+    set simRate(rate) { this.simStep = 1 / rate };
+    set simMulti(value) {
+        this._simMulti = value;
+        if (this._isRunning) { this.stop(); this.start(); }
+    }
     // methods
     init() {
         this.states = [0, 0];
         this.inputs = [0];
         this.disturbances = [0];
-        this.reference = 0;
+        this.reference = [0];
         this.params = { K: 1, D: .1 };
+        this.simMulti = 1; // multiplicator for real-time / slow-mo / speed-up
     };
     controlLaw(t, x, w, z) {
         // must return u(t)
@@ -60,20 +79,14 @@ class BaseSim {
         console.log(x);
     }
     update(self) {
-        let t = self.time;
-        let w = self.reference;
-        let x = self.states;
-        let z = self.disturbances;
-        let Ts = self.simStep;
-
+        let Ts = self.Ts;
 
         // compute the control law
         let u = self.u;
 
 
         // update the states
-        // let x_new = self._fwdEulerInt(Ts, t, x, u, z); // fwd euler integration
-        let x_new = self._rk4Int(Ts, t, x, u, z); // runge kutta 4th order
+        let x_new = self.integrationMethod(Ts, self.t, self.x, self.u, self.z);
 
 
         // is it time to call the plotting function?
@@ -108,7 +121,7 @@ class BaseSim {
     }
     start() {
         if (this._isRunning) { return false; }
-        this._timer = setInterval(this.update, this.simStep * 1000 * this.simMulti, this);
+        this._timer = setInterval(this.update, 1 / this.simRate * 1000, this);
         this._isRunning = true;
     };
     stop() {
@@ -132,8 +145,15 @@ class FlexJointBase extends BaseSim {
         this.states = [0, 0, 0, 0];
         this.inputs = [0];
         this.disturbances = [0];
-        this.reference = 0;
-        // this.params = {Rm:1.4637,Km:0.0071,kg:70,Jeq:0.0063,Jl:0.0124,Beq:0.0619,Ks:2.2376}; //Vrilic presi
+        this.reference = [0];
+
+        // set base simulation frequency
+        this.simRate = 120; // Hz
+        // aim for 60Hz plotting rate
+        this.plotRate = 60; //Hz
+
+        //Vrilic presi
+        // this.params = {Rm:1.4637,Km:0.0071,kg:70,Jeq:0.0063,Jl:0.0124,Beq:0.0619,Ks:2.2376};
         //Dennis matlab
         this.params = {
             B_m: 0.069648931118612,
@@ -144,7 +164,7 @@ class FlexJointBase extends BaseSim {
             R_m: 2.604774845208310,
             c: 0.003217432900875,
             k: 0.201546116084800,
-        }
+        };
     };
     systemEquation(t, x, u, z) {
         // must return x_dot(t)
