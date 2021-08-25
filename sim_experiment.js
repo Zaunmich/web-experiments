@@ -40,7 +40,7 @@ class BaseSim {
     get w() { return this.reference };
     get y() { return this.outputEquation(this.t, this.x, this.u, this.z) };
     get u() { return this.controlLaw(this.t, this.x, this.w, this.z) };
-    get plotUpdate() { this.plotFun(this.t, this.x, this.u, this.z, this.y) };
+    get plotUpdate() { this.plotFun(this.t, this.x, this.u, this.z, this.y, this.w) };
     set plotRate(rate) { this._plotStep = Math.round(this.simRate / rate) / this.simRate }; // set target plot-refresh rate in Hz
     get plotRate() { return 1 / (this._plotStep) }; // get the current plot-refresh rate in Hz
     get plotMulti() { return Math.round(this.simRate / this.plotRate) };
@@ -74,7 +74,7 @@ class BaseSim {
         // must return y(t)
         return x[0];
     };
-    plotFun(t, x, u, z, y) {
+    plotFun(t, x, u, z, y, w) {
         // overwrite me
         console.log(x);
     }
@@ -152,8 +152,6 @@ class FlexJointBase extends BaseSim {
         // aim for 60Hz plotting rate
         this.plotRate = 60; //Hz
 
-        //Vrilic presi
-        // this.params = {Rm:1.4637,Km:0.0071,kg:70,Jeq:0.0063,Jl:0.0124,Beq:0.0619,Ks:2.2376};
         //Dennis matlab
         this.params = {
             B_m: 0.069648931118612,
@@ -173,18 +171,6 @@ class FlexJointBase extends BaseSim {
 
         // define a value to force the base to 0 deg
         let epsilon = 0;
-
-        // vrilic presi
-        // let a=params.Ks/params.Jeq,
-        // b=(params.Beq)/(params.Jeq),
-        // c=(1)/(params.Jeq),
-        // d=(params.Ks*(params.Jeq+params.Jl))/(params.Jeq*params.Jl);
-        // x_dot = [
-        //     x[2] - x[0]*epsilon,
-        //     x[3],
-        //     +x[1]*a - x[2]*b + u[0]*c,
-        //     -x[1]*d + x[2]*b - u[0]*c + z[0]/params.Jeq
-        // ];
 
         // Dennis matlab
         // J_m ... mass moment of inertia of the motor refered to the shaft in kg*m^2
@@ -217,4 +203,39 @@ class FlexJointBase extends BaseSim {
         // output are head angle (measured from global zero) and arm angle (measured from global zero) in radiants
         return [x[0], x[0] + x[1]];
     };
+}
+
+class FlexJointPID extends FlexJointBase {
+    constructor() {
+        super();
+        // just define them so that they exist
+        this.Kp = 0;
+        this.Ki = 0;
+        this.Kd = 0;
+
+        this.referencePeriod = 10 // in seconds 
+        this.referenceMagnitude = Math.PI / 4 // in radiants
+    };
+    // overwrites
+    init(){
+        super.init();
+        this.int_error = 0;
+        this.old_error = 0;
+    }
+    controlLaw(t, x, w, z) {
+        // must return u(t)
+        let Ts = this.Ts;
+        let e = w[0] - (x[0] + x[1]);
+
+        this.int_error += e * Ts;
+        let diff_error = (this.old_error - e) / Ts;
+        this.old_error = e;
+
+        return [this.Kp * e + this.Ki * this.int_error + this.Kd * diff_error];
+    };
+    get w() { return this.referenceLaw(this.t) };
+    // methods
+    referenceLaw(t) {
+        return [(t % this.referencePeriod < this.referencePeriod / 2) * this.referenceMagnitude];
+    }
 }
