@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flexible Joint PID</title>
+    <title>Flexible Joint Bode</title>
 
     <!-- 3dr party imports -->
     <!-- jQuery -->
@@ -61,14 +61,6 @@
             stroke-width: 2px;
         }
 
-        .refLine {
-            fill: none;
-            stroke: green;
-            stroke-width: 2px;
-            /*dashed line with equal spacing*/
-            /* stroke-dasharray: 4;  */
-        }
-
         /* input line class */
         .inpLine {
             fill: none;
@@ -89,18 +81,15 @@
             onchange="setRealTimeFactor(this.value)">
         <small> Real-Time </small>
         <br>
-        <label for="Kp">Input Kp:</label>
-        <input type="number" name="Kp" id="Kp" value="1" step=".1">
+        <label for="amplitude">Input amplitude:</label>
+        <input type="number" name="amplitude" id="amplitude" value="1" step="1">V
         <br>
-        <label for="Ki">Input Ki:</label>
-        <input type="number" name="Ki" id="Ki" value="0" step=".1">
-        <br>
-        <label for="Kd">Input Kd:</label>
-        <input type="number" name="Kd" id="Kd" value="0" step=".1">
+        <label for="frequency">Input frequency:</label>
+        <input type="number" name="frequency" id="frequency" value="1" step="1">Hz
     </div>
     <div id="mychart" class="chart"></div>
     <a href="index.html">
-        <button type="button">Previous: Bode Plot</button>
+        <button type="button">Back to overview</button>
     </a>
 
     <script>
@@ -168,7 +157,6 @@
         flexJoint['base'] = { width: 75, height: 75, }; // size of the base-plate
         flexJoint['head'] = { width: 70, height: 50, }; // size of the head-plate
         flexJoint['arm'] = { width: 120, height: 5, }; // size of the arm
-        flexJoint['ref'] = { length: 130, }; // size of the reference line
 
         // base plate
         rowTopC1.append("rect")
@@ -206,19 +194,11 @@
             .attr("x2", flexJoint.arm.width / 4).attr("y2", 0)
             .classed("spring", true);
 
-        // reference 
-        rowTopC1.append("line")
-            .attr("x1", 0).attr("y1", 0)
-            .attr("x2", flexJoint.ref.length).attr("y2", 0)
-            .classed("refLine", true);
-
-
         // function to update the flexible joint graphic
-        function updateFlexJointAngles(headAngle, armAngle, refAngle) {
+        function updateFlexJointAngles(headAngle, armAngle) {
             // each angle is relative to the global x-axis (right direction in the graph)
             svg.select('.head').attr("transform", `rotate(${-headAngle})`);
             svg.select('.arm').attr("transform", `rotate(${-armAngle})`);
-            rowTopC1.select('.refLine').attr("transform", `rotate(${-refAngle})`);
             // the order of the springs is important! We use the index to decide if it is the upper/lower spring
             svg.selectAll('.spring')
                 .attr("x1", (d, i) => { return (i * 2 - 1) * flexJoint.head.height / 2 * Math.sin(deg2rad(headAngle)) })
@@ -264,30 +244,18 @@
         let outLine = d3.line()
             .defined(d => !isNaN(d.x[1]))
             .x((d, i, all) => Xout(all[all.length - 1].t - d.t))
-            .y(d => Yout((d.armAngle)));
-        let refLine = d3.line()
-            .defined(d => !isNaN(d.x[1]))
-            .x((d, i, all) => Xout(all[all.length - 1].t - d.t))
-            .y(d => Yout((d.refAngle)));
+            .y(d => Yout(rad2deg(d.armAngle)));
 
         function updateOutGraph(data) {
             // compute visible data
             let vis_data = d3.filter(data, (d, i, a) => d.t >= a.last().t - outGraph.tmax);
-            var y = outGraph.selectAll('.outLine')
+            var u = outGraph.selectAll('.outLine')
                 .data([vis_data]);
-            y.enter()
-                .append("path").merge(y)
+
+            u.enter()
+                .append("path").merge(u)
                 .attr("d", outLine)
                 .classed('outLine', true);
-
-            var w = outGraph.selectAll('.refLine')
-                .data([vis_data]);
-            w.enter()
-                .append("path").merge(w)
-                .attr("d", refLine)
-                .classed('refLine', true);
-
-
             // update Xaxis
             Xout.domain([0, outGraph.tmax]);
             outGraphXAxisGroup.select(".axes").call(d3.axisBottom(Xout));
@@ -296,7 +264,7 @@
 
             // update Yaxis
             Yout.domain(
-                [d3.min(vis_data, (d) => Math.min(d.armAngle, d.refAngle)) - outGraph.angleStart, d3.max(vis_data, (d) => Math.max(d.armAngle, d.refAngle)) + outGraph.angleStart]
+                [d3.min(vis_data, (d) => rad2deg(d.armAngle)) - outGraph.angleStart, d3.max(vis_data, (d) => rad2deg(d.armAngle)) + outGraph.angleStart]
             ).nice().clamp(true);
             outGraphYAxisGroup.call(d3.axisLeft(Yout));
         };
@@ -405,23 +373,26 @@
         // sample data generation
         var data = []
 
-        let simpleSim = new FlexJointPID();
-        simpleSim.plotFun = function (t, x, u, z, y, w) {
+        let simpleSim = new FlexJointBase();
+        simpleSim.plotFun = function (t, x, u, z, y) {
 
-            data.push({ t: t, x: x, u: u, w: w, headAngle: rad2deg(y[0]), armAngle: rad2deg(y[1]), refAngle: rad2deg(w[0]) });
+            data.push({ t: t, x: x, u: u, headAngle: y[0], armAngle: y[1] });
 
             // clip everything that is older than tmax
             data = data.filter((e) => { return e.t >= t - plotTime });
-            updateFlexJointAngles(rad2deg(y[0]), rad2deg(y[1]), rad2deg(w[0]));
+            updateFlexJointAngles(rad2deg(y[0]), rad2deg(y[1]));
             updateOutGraph(data);
             updateinputGraph(data);
+
+
         };
-        simpleSim.Kp = parseFloat($('#Kp').val());
-        simpleSim.Ki = parseFloat($('#Ki').val());
-        simpleSim.Kd = parseFloat($('#Kd').val());
-        $('#Kp').on('change', function () { simpleSim.Kp = parseFloat(this.value); });
-        $('#Ki').on('change', function () { simpleSim.Ki = parseFloat(this.value); });
-        $('#Kd').on('change', function () { simpleSim.Kd = parseFloat(this.value); });
+        var amp = parseFloat($('#amplitude').val()), freq = parseFloat($('#frequency').val()), phase = 0;
+        sinCtrlLaw = function ctrlLaw(t, x, w, z) {
+            return [Math.sin(t * Math.PI * 2 * freq + phase) * amp];
+        };
+        simpleSim.controlLaw = sinCtrlLaw;
+        $('#amplitude').on('change', function () { amp = this.value; simpleSim.controlLaw = sinCtrlLaw });
+        $('#frequency').on('change', function () { freq = this.value; simpleSim.controlLaw = sinCtrlLaw });
     </script>
 </body>
 
