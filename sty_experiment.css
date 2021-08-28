@@ -1,0 +1,94 @@
+.debugging {
+    /* display: inherit; */
+    display: none;
+}
+
+
+/* flexible joint classes */
+
+.baseRect {
+    fill: rgb(143, 143, 143);
+    stroke: black;
+    stroke-width: 2px;
+    rx: 10px;
+    ry: 10px;
+}
+
+.headRect {
+    fill: rgb(75, 75, 75);
+    stroke: black;
+    stroke-width: 2px;
+    rx: 10px;
+    ry: 10px;
+}
+
+.headLine {
+    fill: none;
+    stroke: cyan;
+    stroke-width: 2px;
+    stroke-dasharray: 4;
+}
+
+.outGraph .headLine {
+    stroke-dasharray: 0;
+}
+
+.armRect {
+    fill: black;
+    stroke: black;
+    stroke-width: 1px;
+    rx: 2px;
+    ry: 2px;
+}
+
+.armLine {
+    fill: none;
+    stroke: blue;
+    stroke-width: 2px;
+    stroke-dasharray: 4;
+}
+
+.outGraph .armLine {
+    stroke-dasharray: 0;
+}
+
+.refLine {
+    fill: none;
+    stroke: green;
+    stroke-width: 2px;
+    stroke-dasharray: 4;
+}
+
+.outGraph .refLine {
+    stroke-dasharray: 0;
+}
+
+.springLine {
+    stroke: white;
+    stroke-width: 2px;
+    stroke-linecap: round;
+}
+
+.inputLine {
+    fill: none;
+    stroke: red;
+    stroke-width: 2px;
+}
+
+
+/* plot classes */
+
+.gridLines {
+    opacity: .25;
+}
+
+
+/* removes the baseline when plotting gridLines */
+
+.gridLines path {
+    display: none;
+}
+
+.titleLabel {
+    font-weight: bold;
+}

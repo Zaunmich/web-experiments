@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,16 +14,102 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
 
     <!-- my imports -->
+    <link rel="stylesheet" href="sty_experiment.css">
     <script src="sim_experiment.js"></script>
     <script src="vis_experiment.js"></script>
 </head>
+
 <body>
 
-    <div class="groot" id="groot"></div>
+    <div class="controls">
+        <label for="simcontrols">Simulation controls:</label>
+        <button type="button" onclick="baseSim.start()" name="simcontrols">Start</button>
+        <button type="button" onclick="baseSim.stop()">Stop</button>
+        <button type="button" onclick="reset()">Reset</button>
+        <br>
+        <label for="simSpeed">Simulation speed:</label><br>
+        <small> Slow-Motion </small>
+        <input type="range" name="simSpeed" min="1" max="100" value="100" class="slider" onchange="setRealTimeFactor(this.value)">
+        <small> Real-Time </small>
+        <br>
+        <label for="amplitude">Step amplitude:</label>
+        <input type="number" name="amplitude" id="amplitude" value="1" step="1">V
+        <br>
+        <label for="duration">Step duration:</label>
+        <input type="number" name="duration" id="duration" value="1" step="1">seconds
+    </div>
+
+    <div class="groot" id="groot" style="width: 800px;"></div>
+    <a href="index.html">
+        <button type="button">Back to overview</button>
+    </a>
 
     <script>
-        var vis = new BaseVis("#groot");
+        // create the figure
+        let figure = d3subploter.createFigure('groot', 800, 600);
+
+        // add a gray area
+        // figure.d3.append("rect")
+        //     .attr("x", 0)
+        //     .attr("y", 0)
+        //     .attr("width", "100%")
+        //     .attr("height", "100%")
+        //     .style("fill", "#eee")
+        //     .style("stroke", "black")
+
+        // call the visualization class
+        let baseVis = new BaseVis(figure);
+        const plotTime = 20; // in seconds
+        baseVis.plotTime = plotTime;
+
+        // call the simulation class
+        let baseSim = new FlexJointBase();
+
+        // connect the visualization to the simulation
+        baseSim.plotFun = function(t, x, u, z, y, w) {
+            // add the new datapoint to the data
+            baseVis.data.push({
+                t: t,
+                u: u[0],
+                headAngle: rad2deg(y[0]),
+                armAngle: rad2deg(y[1]),
+                refAngle: rad2deg(w[0]),
+            });
+            baseVis.update();
+        };
+
+        // change the control law
+        baseSim.amplitude = parseFloat($('#amplitude').val());
+        baseSim.duration = parseFloat($('#duration').val());
+        baseSim.controlLaw = function(t, x, w, z) {
+            return [(t % (this.duration * 2) < this.duration) * this.amplitude * 2 - this.amplitude];
+        };
+        $('#amplitude').on('change', function() {
+            baseSim.amplitude = this.value;
+        });
+        $('#duration').on('change', function() {
+            baseSim.duration = this.value;
+        });
+        // remove the reference value from the plot
+        baseSim.reference = [NaN];
+
+        // reset both
+        function reset() {
+            baseVis.reset();
+            baseSim.reset();
+        }
+        // slow-motion
+        function setRealTimeFactor(input) {
+            let minFactor = 0.1,
+                maxFactor = 1;
+
+            let scale = d3.scaleLinear().domain([1, 100]).range([minFactor, maxFactor]);
+            let factor = scale(input);
+            baseSim.simMulti = factor
+            baseVis.plotTime = plotTime * factor;
+        };
     </script>
-    
+
 </body>
+
 </html>
