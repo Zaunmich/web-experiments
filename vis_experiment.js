@@ -11,10 +11,10 @@ if (typeof d3 === "undefined") {
 function deg2rad(deg) { return deg / 360 * Math.PI * 2 };
 
 function rad2deg(rad) { return rad / Math.PI / 2 * 360 };
+
 // last of an array
-if (!Array.prototype.Mylast) {
-    Array.prototype.Mylast = function() { if (this.length > 0) { return this[this.length - 1]; } else { return this } };
-}; // enables [1,2,3].Mylast()
+function arLast(array) { if (array.length > 0) { return array[array.length - 1]; } else { return array } };
+
 
 
 // a creator for d3 subplots
@@ -497,7 +497,7 @@ class BaseVis {
 
         // update function
         function updateExperiment(data) {
-            let nowData = data.Mylast();
+            let nowData = arLast(data);
             let headAngle = nowData.headAngle,
                 armAngle = nowData.armAngle,
                 refAngle = nowData.refAngle;
@@ -555,7 +555,7 @@ class BaseVis {
                 // make a d3 line object
                 function mkLine(key) {
                     return d3.line().defined((d) => !isNaN(d[key]))
-                        .x((d, i, all) => graphPlot.xScale(all.Mylast().t - d.t))
+                        .x((d, i, all) => graphPlot.xScale(arLast(all).t - d.t))
                         .y((d) => graphPlot.yScale(d[key]));
                 };
             }
@@ -565,7 +565,7 @@ class BaseVis {
         graphPlot.moveCallback = function(event, tooltip) {
             let xCursor = graphPlot.xScale.invert(d3.pointer(event)[0]);
             let yCursor = graphPlot.yScale.invert(d3.pointer(event)[1]);
-            let tnow = self.data.Mylast().t;
+            let tnow = arLast(self.data).t;
             let bisect = d3.bisector((d) => d.t).left;
             let idxCursor = bisect(self.data, tnow - xCursor, 1);
             let dataCursor = self.data[idxCursor];
@@ -586,7 +586,7 @@ class BaseVis {
         // create a update function
         function updateAll(data) {
             // compute visible data
-            let visibleData = d3.filter(data, (d, i, a) => d.t >= a.Mylast().t - self.plotTime);
+            let visibleData = d3.filter(data, (d, i, a) => d.t >= arLast(a).t - self.plotTime);
             // compute min/max values of all lines
             let yMin = d3.min(visibleData, (d) => d3.min([d.headAngle, d.armAngle, d.refAngle]));
             let yMax = d3.max(visibleData, (d) => d3.max([d.headAngle, d.armAngle, d.refAngle]));
@@ -635,7 +635,7 @@ class BaseVis {
                 // make a d3 line object
                 function mkLine(key) {
                     return d3.line().defined((d) => !isNaN(d[key]))
-                        .x((d, i, all) => graphPlot.xScale(all.Mylast().t - d.t))
+                        .x((d, i, all) => graphPlot.xScale(arLast(all).t - d.t))
                         .y((d) => graphPlot.yScale(d[key]));
                 };
             }
@@ -644,7 +644,7 @@ class BaseVis {
         graphPlot.moveCallback = function(event, tooltip) {
             let xCursor = graphPlot.xScale.invert(d3.pointer(event)[0]);
             let yCursor = graphPlot.yScale.invert(d3.pointer(event)[1]);
-            let tnow = self.data.Mylast().t;
+            let tnow = arLast(self.data).t;
             let bisect = d3.bisector((d) => d.t).left;
             let idxCursor = bisect(self.data, tnow - xCursor, 1);
             let dataCursor = self.data[idxCursor];
@@ -662,7 +662,7 @@ class BaseVis {
 
         function updateAll(data) {
             // compute visible data
-            let visibleData = d3.filter(data, (d, i, a) => d.t >= a.Mylast().t - self.plotTime);
+            let visibleData = d3.filter(data, (d, i, a) => d.t >= arLast(a).t - self.plotTime);
             // compute min/max values of all lines
             let yMin = d3.min(visibleData, (d) => d3.min([d.u]));
             let yMax = d3.max(visibleData, (d) => d3.max([d.u]));
