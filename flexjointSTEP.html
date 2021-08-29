@@ -7,108 +7,193 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flexible Joint STEPS</title>
 
-    <!-- 3dr party imports -->
+    <!-- 3rd party imports -->
     <!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <!-- d3 -->
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-
-    <!-- my imports -->
-    <link rel="stylesheet" href="sty_experiment.css">
-    <script src="sim_experiment.js"></script>
-    <script src="vis_experiment.js"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    <!-- fontawesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
 </head>
 
 <body>
 
-    <div class="controls">
-        <label for="simcontrols">Simulation controls:</label>
-        <button type="button" onclick="baseSim.start()" name="simcontrols">Start</button>
-        <button type="button" onclick="baseSim.stop()">Stop</button>
-        <button type="button" onclick="reset()">Reset</button>
-        <br>
-        <label for="simSpeed">Simulation speed:</label><br>
-        <small> Slow-Motion </small>
-        <input type="range" name="simSpeed" min="1" max="100" value="100" class="slider" onchange="setRealTimeFactor(this.value)">
-        <small> Real-Time </small>
-        <br>
-        <label for="amplitude">Step amplitude:</label>
-        <input type="number" name="amplitude" id="amplitude" value="1" step="1">V
-        <br>
-        <label for="duration">Step duration:</label>
-        <input type="number" name="duration" id="duration" value="1" step="1">seconds
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-block p-3">
+                    <h2>Flexible Joint Webexperiment: Step response</h2>
+                    <div class="box py-3 gerneralbox center clearfix">
+                        <div class="no-overflow">
+                            <p>
+                                Look at the step response of the flexible joint.
+                            </p>
+
+                            <!-- ############### start copying here for moodle import ############### -->
+
+                            <!-- my imports -->
+                            <script src="https://cdn.jsdelivr.net/npm/d3@7.0.1/dist/d3.min.js"></script>
+                            <script src="https://zaunmich.github.io/web-experiments/sim_experiment.js"></script>
+                            <script src="https://zaunmich.github.io/web-experiments/vis_experiment.js"></script>
+                            <!-- load the CSS via JS, as moodle doesn't allow link elements -->
+                            <script>
+                                var cssId = 'myCss'; // you could encode the css path itself to generate id..
+                                if (!document.getElementById(cssId)) {
+                                    var head = document.getElementsByTagName('head')[0];
+                                    var link = document.createElement('link');
+                                    link.id = cssId;
+                                    link.rel = 'stylesheet';
+                                    link.type = 'text/css';
+                                    link.href = 'https://zaunmich.github.io/web-experiments/sty_experiment.css';
+                                    link.media = 'all';
+                                    head.appendChild(link);
+                                }
+                            </script>
+
+                            <!-- bootstrap controls -->
+                            <div class="row">
+                                <div class="col-auto">
+                                    <h5>
+                                        Simulation controls:
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-auto">
+                                    <button type="button" class="btn btn-primary" onclick="baseSim.start()">
+                                        <i class="fa fa-play"></i> Play</button>
+                                    <button type="button" class="btn btn-primary" onclick="baseSim.stop()">
+                                        <i class="fa fa-pause"></i> Pause</button>
+                                    <button type="button" class="btn btn-primary" onclick="reset()">
+                                        <i class="fa fa-undo"></i> Reset</button>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">Slow Motion</span>
+                                        </div>
+                                        <div class="form-control col-auto">
+                                            <input type="range" name="simSpeed" min="1" max="100" value="100" class="slider" onchange="setRealTimeFactor(this.value)">
+                                        </div>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">Real Time</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <br>
+
+                            <div class="row">
+                                <div class="col-auto">
+                                    <h5>
+                                        Input controls:
+                                    </h5>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Step amplitude:</label>
+                                <div class="col-sm-10 col-lg-5 col-xl-3 input-group">
+                                    <input type="number" name="amplitude" id="amplitude" value="1" step="1" class="form-control col-sm-6" style="height:auto;">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">Volts</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Step duration:</label>
+                                <div class="col-sm-10 col-lg-5 col-xl-3 input-group">
+                                    <input type="number" name="duration" id="duration" value="1" step="1" class="form-control col-sm-6" style="height:auto;">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">seconds</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <br>
+
+                            <!-- plotting area goes here -->
+                            <div class="groot" id="groot" style="width: 800px;"></div>
+
+                            <br>
+
+                            <script>
+                                // create the figure
+                                let figure = d3subploter.createFigure('groot', 800, 600);
+
+                                // call the visualization class
+                                let baseVis = new BaseVis(figure);
+                                const plotTime = 20; // in seconds
+                                baseVis.plotTime = plotTime;
+
+                                // call the simulation class
+                                let baseSim = new FlexJointBase();
+
+                                // connect the visualization to the simulation
+                                baseSim.plotFun = function(t, x, u, z, y, w) {
+                                    // add the new datapoint to the data
+                                    baseVis.data.push({
+                                        t: t,
+                                        u: u[0],
+                                        headAngle: rad2deg(y[0]),
+                                        armAngle: rad2deg(y[1]),
+                                        refAngle: rad2deg(w[0]),
+                                    });
+                                    baseVis.update();
+                                };
+
+                                // change the control law
+                                window.addEventListener('load', (event) => {
+
+                                    baseSim.amplitude = parseFloat($('#amplitude').val());
+                                    baseSim.duration = parseFloat($('#duration').val());
+                                    baseSim.controlLaw = function(t, x, w, z) {
+                                        return [(t % (this.duration * 2) < this.duration) * this.amplitude * 2 - this.amplitude];
+                                    };
+                                    $('#amplitude').on('change', function() {
+                                        baseSim.amplitude = this.value;
+                                    });
+                                    $('#duration').on('change', function() {
+                                        baseSim.duration = this.value;
+                                    });
+                                });
+                                // remove the reference value from the plot
+                                baseSim.reference = [NaN];
+
+                                // reset both
+                                function reset() {
+                                    baseVis.reset();
+                                    baseSim.reset();
+                                }
+                                // slow-motion
+                                function setRealTimeFactor(input) {
+                                    let minFactor = 0.1,
+                                        maxFactor = 1;
+
+                                    let scale = d3.scaleLinear().domain([1, 100]).range([minFactor, maxFactor]);
+                                    let factor = scale(input);
+                                    baseSim.simMulti = factor
+                                    baseVis.plotTime = plotTime * factor;
+                                };
+                            </script>
+
+                            <!-- ############### end copying here for moodle import ############### -->
+
+                            <br>
+                            <a href="index.html">
+                                <button type="button" class="btn btn-secondary">Back to overview</button>
+                            </a>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="groot" id="groot" style="width: 800px;"></div>
-    <a href="index.html">
-        <button type="button">Back to overview</button>
-    </a>
 
-    <script>
-        // create the figure
-        let figure = d3subploter.createFigure('groot', 800, 600);
-
-        // add a gray area
-        // figure.d3.append("rect")
-        //     .attr("x", 0)
-        //     .attr("y", 0)
-        //     .attr("width", "100%")
-        //     .attr("height", "100%")
-        //     .style("fill", "#eee")
-        //     .style("stroke", "black")
-
-        // call the visualization class
-        let baseVis = new BaseVis(figure);
-        const plotTime = 20; // in seconds
-        baseVis.plotTime = plotTime;
-
-        // call the simulation class
-        let baseSim = new FlexJointBase();
-
-        // connect the visualization to the simulation
-        baseSim.plotFun = function(t, x, u, z, y, w) {
-            // add the new datapoint to the data
-            baseVis.data.push({
-                t: t,
-                u: u[0],
-                headAngle: rad2deg(y[0]),
-                armAngle: rad2deg(y[1]),
-                refAngle: rad2deg(w[0]),
-            });
-            baseVis.update();
-        };
-
-        // change the control law
-        baseSim.amplitude = parseFloat($('#amplitude').val());
-        baseSim.duration = parseFloat($('#duration').val());
-        baseSim.controlLaw = function(t, x, w, z) {
-            return [(t % (this.duration * 2) < this.duration) * this.amplitude * 2 - this.amplitude];
-        };
-        $('#amplitude').on('change', function() {
-            baseSim.amplitude = this.value;
-        });
-        $('#duration').on('change', function() {
-            baseSim.duration = this.value;
-        });
-        // remove the reference value from the plot
-        baseSim.reference = [NaN];
-
-        // reset both
-        function reset() {
-            baseVis.reset();
-            baseSim.reset();
-        }
-        // slow-motion
-        function setRealTimeFactor(input) {
-            let minFactor = 0.1,
-                maxFactor = 1;
-
-            let scale = d3.scaleLinear().domain([1, 100]).range([minFactor, maxFactor]);
-            let factor = scale(input);
-            baseSim.simMulti = factor
-            baseVis.plotTime = plotTime * factor;
-        };
-    </script>
 
 </body>
 

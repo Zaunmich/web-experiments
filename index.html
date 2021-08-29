@@ -1,37 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web-Experiments landing page</title>
+    <!-- 3rd party imports -->
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    <!-- fontawesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
 </head>
+
 <body>
-    <h1 style="color: red;">Work in progress!</h1>
-    <br>
-    <h2>Flex Joint experiment</h2>
-    <ul>
-        <li>
-            Look at the step response: 
-            
-            <a href="flexjointSTEP.html">
-                <button type="button">Step response</button>
-            </a>
-        </li>
-        <li>
-            See how the sytem reacts to sine-waves with different frequencies: 
-            
-            <a href="flexjointSINE.html">
-                <button type="button">Sine response</button>
-            </a>
-        </li>
-        <li>
-            Try out a PID controller: 
-            
-            <a href="flexjointPID.html">
-                <button type="button">PID controller</button>
-            </a>
-        </li>
-    </ul>
+    <div class="container-fluid ">
+        <!-- warning sign -->
+
+        <div class="row justify-content-md-center">
+            <div class="col-3">
+                <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+                    <strong>Warning!</strong><br> Work in progress. Content is subject to change!
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flexjoint start -->
+        <div class="row mt-3">
+            <div class="col">
+                <div class="card mb-3">
+                    <h3 class="card-header">
+                        Flexible joint experiments
+                    </h3>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <span>Look at the step response</span>
+                                <a href="flexjointSTEP.html">
+                                    <button type="button" class="btn btn-primary">Start experiment!</button>
+                                </a>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <span>Look at the frequency response</span>
+                                <a href="flexjointSINE.html">
+                                    <button type="button" class="btn btn-primary">Start experiment!</button>
+                                </a>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <span>Tune a PID controller</span>
+                                <a href="flexjointPID.html">
+                                    <button type="button" class="btn btn-primary">Start experiment!</button>
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- github link -->
+        <div class="row mt-3 justify-content-end">
+            <div class="col-2 text-right">
+                Find me on <a href="https://github.com/Zaunmich/web-experiments">Github!</a>
+            </div>
+        </div>
+
+    </div>
+
+
 </body>
+
 </html>

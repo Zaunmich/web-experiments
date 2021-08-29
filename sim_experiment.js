@@ -2,12 +2,15 @@
 function objOrFun2fun(objOrFun) {
     if (typeof objOrFun === 'function') { return objOrFun; } else { return () => { return objOrFun } }
 };
+
 function objOrArray2array(objOrArray) {
     if (Array.isArray(objOrArray)) { return objOrArray; } else { return [objOrArray]; }
 };
+
 function vectAdd(vecA, vecB) {
     return vecA.map((e, i) => { return e + vecB[i] });
 };
+
 function vectScale(vecA, scaling) {
     return vecA.map((e, i) => { return e * scaling });
 };
@@ -15,22 +18,22 @@ function vectScale(vecA, scaling) {
 class BaseSim {
     constructor() {
 
-        this.time = 0;
-        this.nSim = 0;
+            this.time = 0;
+            this.nSim = 0;
 
-        this.simStep = 1 / 100; // simulation timestep in seconds
-        // TODO: have a working slow-motion mode
-        // choose integration method. Available choices: _fwdEulerInt, _rk4Int
-        this.integrationMethod = this._rk4Int;
+            this.simStep = 1 / 100; // simulation timestep in seconds
+            // TODO: have a working slow-motion mode
+            // choose integration method. Available choices: _fwdEulerInt, _rk4Int
+            this.integrationMethod = this._rk4Int;
 
-        // internal parameters
-        this._isRunning = false;
-        this._simMulti = 1;  // multiplicator for the sampling time of the simulation
-        this._plotStep = 1 / 60; // plotting timestep in seconds
+            // internal parameters
+            this._isRunning = false;
+            this._simMulti = 1; // multiplicator for the sampling time of the simulation
+            this._plotStep = 1 / 60; // plotting timestep in seconds
 
-        this.init();
-    }
-    // getters/setters
+            this.init();
+        }
+        // getters/setters
     get isRunning() { return this._isRunning; };
     get Ts() { return this.simStep * this._simMulti };
     set Ts(target) { throw 'Set simRate instead of Ts!' };
@@ -47,10 +50,13 @@ class BaseSim {
     get simRate() { return 1 / this.simStep };
     set simRate(rate) { this.simStep = 1 / rate };
     set simMulti(value) {
-        this._simMulti = value;
-        if (this._isRunning) { this.stop(); this.start(); }
-    }
-    // methods
+            this._simMulti = value;
+            if (this._isRunning) {
+                this.stop();
+                this.start();
+            }
+        }
+        // methods
     init() {
         this.states = [0, 0];
         this.inputs = [0];
@@ -138,9 +144,9 @@ class BaseSim {
 
 class FlexJointBase extends BaseSim {
     constructor() {
-        super();
-    }
-    // overwrites
+            super();
+        }
+        // overwrites
     init() {
         this.states = [0, 0, 0, 0];
         this.inputs = [0];
@@ -193,8 +199,7 @@ class FlexJointBase extends BaseSim {
         x_dot = [
             x[3 - 1] - x[0] * epsilon,
             x[4 - 1],
-            1 / J_m * (k * x[2 - 1] - (B_m + K_m ** 2 / R_m) * x[3 - 1] - MC * Math.tanh(1000 * x[3 - 1]) + c * x[4 - 1] + K_m / R_m * u[1 - 1] + z[0]),
-            -(k / J_r + k / J_m) * x[2 - 1] + (B_m + K_m ** 2 / R_m) / J_m * x[3 - 1] + MC * Math.tanh(1000 * x[3 - 1]) / J_m - (c / J_r + c / J_m) * x[4 - 1] - K_m / R_m / J_m * u[1 - 1]
+            1 / J_m * (k * x[2 - 1] - (B_m + K_m ** 2 / R_m) * x[3 - 1] - MC * Math.tanh(1000 * x[3 - 1]) + c * x[4 - 1] + K_m / R_m * u[1 - 1] + z[0]), -(k / J_r + k / J_m) * x[2 - 1] + (B_m + K_m ** 2 / R_m) / J_m * x[3 - 1] + MC * Math.tanh(1000 * x[3 - 1]) / J_m - (c / J_r + c / J_m) * x[4 - 1] - K_m / R_m / J_m * u[1 - 1]
         ];
 
         return x_dot;
@@ -217,7 +222,7 @@ class FlexJointPID extends FlexJointBase {
         this.referenceMagnitude = Math.PI / 4 // in radiants
     };
     // overwrites
-    init(){
+    init() {
         super.init();
         this.int_error = 0;
         this.old_error = 0;
