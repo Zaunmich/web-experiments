@@ -366,6 +366,7 @@ class BaseVis {
 
             // settings
             this.plotTime = 20; // in seconds; Timeframe in which the plotting data will be saved
+            this.dragExperimentEnabled = true; // enable/disable the mouse-drag on the experiment
 
             this.drawAll();
         }
@@ -415,6 +416,7 @@ class BaseVis {
     };
     drawExperiment(subplot) {
         // must return an object with { canvas: origin, update: updateFun }
+        var self = this;
         var origin = subplot.alligned;
 
         const minDim = Math.min(subplot.width, subplot.height);
@@ -452,9 +454,8 @@ class BaseVis {
             .classed("headRect", true);
 
         // arm
-        origin.append("g").attr("id", "arm")
-            .attr("transform", `rotate(${-0})`)
-            .append("rect")
+        var ag = origin.append("g").attr("id", "arm").attr("transform", `rotate(${-0})`);
+        ag.append("rect")
             .attr("x", 0)
             .attr("y", -flexJoint.arm.height / 2)
             .attr("width", flexJoint.arm.width)
@@ -479,6 +480,7 @@ class BaseVis {
             .attr("x2", flexJoint.head.length)
             .attr("y2", 0)
             .attr("transform", `rotate(${-0})`)
+            .attr("pointer-events", "none")
             .classed("headLine", true).attr("id", "head");
         origin.append("line")
             .attr("x1", 0)
@@ -486,6 +488,7 @@ class BaseVis {
             .attr("x2", flexJoint.arm.length)
             .attr("y2", 0)
             .attr("transform", `rotate(${-0})`)
+            .attr("pointer-events", "none")
             .classed("armLine", true).attr("id", "arm");
         origin.append("line")
             .attr("x1", 0)
@@ -493,6 +496,7 @@ class BaseVis {
             .attr("x2", flexJoint.ref.length)
             .attr("y2", 0)
             .attr("transform", `rotate(${-0})`)
+            .attr("pointer-events", "none")
             .classed("refLine", true).attr("id", "ref");
 
         // update function
@@ -515,8 +519,45 @@ class BaseVis {
                 .attr("x1", (d, i) => { return (i * 2 - 1) * flexJoint.head.height / 2 * Math.sin(deg2rad(headAngle)) })
                 .attr("y1", (d, i) => { return (i * 2 - 1) * flexJoint.head.height / 2 * Math.cos(deg2rad(headAngle)) })
                 .attr("x2", flexJoint.arm.width / 4 * Math.cos(deg2rad(armAngle)))
-                .attr("y2", -flexJoint.arm.width / 4 * Math.sin(deg2rad(armAngle)))
+                .attr("y2", -flexJoint.arm.width / 4 * Math.sin(deg2rad(armAngle)));
+
+
+            if (!self.dragExperimentEnabled) {
+                // TODO: re-enable the dragging function once it has been disabled
+                origin.select('.armRect').on('mousedown.drag', null);
+            }
+
+            let calcDisturbances = function(self, armAngle) {
+                if (isNaN(self.dragArmPos) || isNaN(self.dragAngle)) {
+                    return [0];
+                }
+                return [(self.dragAngle - armAngle) * self.dragArmPos / 4];
+            };
+            self.disturbances = calcDisturbances(self, armAngle);
+            // console.log(self.disturbances);
         };
+
+        // drag ?
+        origin.select('.armRect').call(d3.drag()
+            .on("start", (e) => {
+                self.dragArmPos = d3.pointer(e)[0] / flexJoint.arm.width;
+                ag.append('circle').attr("cx", d3.pointer(e, ag.node())[0]).attr("cy", 0).attr("r", 8).attr('id', 'dragArmCirc').attr('fill', 'none').attr('stroke', 'blue');
+                origin.append('circle').attr("cx", d3.pointer(e, origin.node())[0]).attr("cy", d3.pointer(e, origin.node())[1]).attr("r", 10).attr('id', 'dragMouseCirc').attr('fill', 'none').attr('stroke', 'red');
+                // console.log(`start drag: ${self.dragArmPos}`);
+            })
+            .on("drag", (e) => {
+                let cursor = d3.pointer(e, origin.node());
+                self.dragAngle = rad2deg(Math.atan2(-cursor[1], cursor[0]));
+                origin.select('#dragMouseCirc').attr("cx", cursor[0]).attr("cy", cursor[1]);
+                // console.log(`dragging: ${self.dragAngle}`);
+            })
+            .on("end", (e) => {
+                delete self.dragArmPos;
+                delete self.dragAngle;
+                ag.select('#dragArmCirc').remove();
+                origin.select('#dragMouseCirc').remove();
+                // console.log('drag end')
+            }));
 
         let experiment = { canvas: origin, model: flexJoint, update: updateExperiment };
         return experiment;
