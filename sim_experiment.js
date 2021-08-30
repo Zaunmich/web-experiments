@@ -156,7 +156,7 @@ class FlexJointBase extends BaseSim {
         // set base simulation frequency
         this.simRate = 120; // Hz
         // aim for 60Hz plotting rate
-        this.plotRate = 60; //Hz
+        this.plotRate = 30; //Hz
 
         //Dennis matlab
         this.params = {
@@ -199,7 +199,7 @@ class FlexJointBase extends BaseSim {
         x_dot = [
             x[3 - 1] - x[0] * epsilon,
             x[4 - 1],
-            1 / J_m * (k * x[2 - 1] - (B_m + K_m ** 2 / R_m) * x[3 - 1] - MC * Math.tanh(1000 * x[3 - 1]) + c * x[4 - 1] + K_m / R_m * u[1 - 1] + z[0]), -(k / J_r + k / J_m) * x[2 - 1] + (B_m + K_m ** 2 / R_m) / J_m * x[3 - 1] + MC * Math.tanh(1000 * x[3 - 1]) / J_m - (c / J_r + c / J_m) * x[4 - 1] - K_m / R_m / J_m * u[1 - 1]
+            1 / J_m * (k * x[2 - 1] - (B_m + K_m ** 2 / R_m) * x[3 - 1] - MC * Math.tanh(1000 * x[3 - 1]) + c * x[4 - 1] + K_m / R_m * u[1 - 1]), -(k / J_r + k / J_m) * x[2 - 1] + (B_m + K_m ** 2 / R_m) / J_m * x[3 - 1] + MC * Math.tanh(1000 * x[3 - 1]) / J_m - (c / J_r + c / J_m) * x[4 - 1] - K_m / R_m / J_m * u[1 - 1] + z[0]
         ];
 
         return x_dot;
@@ -225,18 +225,24 @@ class FlexJointPID extends FlexJointBase {
     init() {
         super.init();
         this.int_error = 0;
+        this.diff_error = 0;
         this.old_error = 0;
+        this.t_error = -1;
     }
     controlLaw(t, x, w, z) {
         // must return u(t)
         let Ts = this.Ts;
         let e = w[0] - (x[0] + x[1]);
 
-        this.int_error += e * Ts;
-        let diff_error = (this.old_error - e) / Ts;
-        this.old_error = e;
+        // only update errors once per Ts
+        if (this.t_error != t) {
+            this.t_error = t;
+            this.int_error += e * Ts;
+            this.diff_error = (e - this.old_error) / Ts;
+            this.old_error = e;
+        }
 
-        return [this.Kp * e + this.Ki * this.int_error + this.Kd * diff_error];
+        return [this.Kp * e + this.Ki * this.int_error + this.Kd * this.diff_error];
     };
     get w() { return this.referenceLaw(this.t) };
     // methods

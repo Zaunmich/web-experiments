@@ -15,14 +15,20 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
     <!-- fontawesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+
+    <!-- dev imports -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.0.1/dist/d3.min.js"></script>
+    <script src="sim_experiment.js"></script>
+    <script src="vis_experiment.js"></script>
+    <link rel="stylesheet" href="sty_experiment.css">
 </head>
 
 <body>
 
-    <div class="container-fluid mt-3">
+    <div class="container mt-3">
         <div class="row">
             <div class="col-12">
-                <div class="card card-block p-3">
+                <div class="card card-block p-3 mb-3">
                     <h2>Flexible Joint Webexperiment: Step response</h2>
                     <div class="box py-3 gerneralbox center clearfix">
                         <div class="no-overflow">
@@ -33,11 +39,11 @@
                             <!-- ############### start copying here for moodle import ############### -->
 
                             <!-- my imports -->
-                            <script src="https://cdn.jsdelivr.net/npm/d3@7.0.1/dist/d3.min.js"></script>
+                            <!-- <script src="https://cdn.jsdelivr.net/npm/d3@7.0.1/dist/d3.min.js"></script>
                             <script src="https://zaunmich.github.io/web-experiments/sim_experiment.js"></script>
                             <script src="https://zaunmich.github.io/web-experiments/vis_experiment.js"></script>
-                            <!-- load the CSS via JS, as moodle doesn't allow link elements -->
                             <script>
+                                // load the CSS via JS, as moodle doesn't allow link elements
                                 var cssId = 'myCss'; // you could encode the css path itself to generate id..
                                 if (!document.getElementById(cssId)) {
                                     var head = document.getElementsByTagName('head')[0];
@@ -49,7 +55,7 @@
                                     link.media = 'all';
                                     head.appendChild(link);
                                 }
-                            </script>
+                            </script> -->
 
                             <!-- bootstrap controls -->
                             <div class="row">
@@ -74,7 +80,7 @@
                                             <span class="input-group-text">Slow Motion</span>
                                         </div>
                                         <div class="form-control col-auto">
-                                            <input type="range" name="simSpeed" min="1" max="100" value="100" class="slider" onchange="setRealTimeFactor(this.value)">
+                                            <input type="range" name="simSpeed" min="1" max="100" value="100" class="slider" oninput="setRealTimeFactor(this.value)">
                                         </div>
                                         <div class="input-group-append">
                                             <span class="input-group-text">Real Time</span>
@@ -114,13 +120,13 @@
                             <br>
 
                             <!-- plotting area goes here -->
-                            <div class="groot" id="groot" style="width: 800px;"></div>
+                            <div class="groot" id="groot" style="width: 1000px;max-width: 100%;"></div>
 
                             <br>
 
                             <script>
                                 // create the figure
-                                let figure = d3subploter.createFigure('groot', 800, 600);
+                                let figure = d3subploter.createFigure('groot', 1000, 600);
 
                                 // call the visualization class
                                 let baseVis = new BaseVis(figure);
@@ -141,22 +147,24 @@
                                         refAngle: rad2deg(w[0]),
                                     });
                                     baseVis.update();
+
+                                    // mouse drag causes disturbance?
+                                    baseSim.disturbances = baseVis.disturbances;
                                 };
 
                                 // change the control law
                                 window.addEventListener('load', (event) => {
 
-                                    baseSim.amplitude = parseFloat($('#amplitude').val());
-                                    baseSim.duration = parseFloat($('#duration').val());
+                                    var amplitude = document.getElementById('amplitude');
+                                    baseSim.amplitude = parseFloat(amplitude.value);
+                                    amplitude.addEventListener('change', () => baseSim.amplitude = parseFloat(amplitude.value));
+                                    var duration = document.getElementById('duration');
+                                    baseSim.duration = parseFloat(duration.value);
+                                    duration.addEventListener('change', () => baseSim.duration = parseFloat(duration.value));
+
                                     baseSim.controlLaw = function(t, x, w, z) {
                                         return [(t % (this.duration * 2) < this.duration) * this.amplitude * 2 - this.amplitude];
                                     };
-                                    $('#amplitude').on('change', function() {
-                                        baseSim.amplitude = this.value;
-                                    });
-                                    $('#duration').on('change', function() {
-                                        baseSim.duration = this.value;
-                                    });
                                 });
                                 // remove the reference value from the plot
                                 baseSim.reference = [NaN];
