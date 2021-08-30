@@ -15,11 +15,17 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
     <!-- fontawesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+
+    <!-- dev imports -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.0.1/dist/d3.min.js"></script>
+    <script src="sim_experiment.js"></script>
+    <script src="vis_experiment.js"></script>
+    <link rel="stylesheet" href="sty_experiment.css">
 </head>
 
 <body>
 
-    <div class="container-fluid mt-3">
+    <div class="container mt-3">
         <div class="row">
             <div class="col-12">
                 <div class="card card-block p-3 mb-3">
@@ -33,11 +39,11 @@
                             <!-- ############### start copying here for moodle import ############### -->
 
                             <!-- my imports -->
-                            <script src="https://cdn.jsdelivr.net/npm/d3@7.0.1/dist/d3.min.js"></script>
+                            <!-- <script src="https://cdn.jsdelivr.net/npm/d3@7.0.1/dist/d3.min.js"></script>
                             <script src="https://zaunmich.github.io/web-experiments/sim_experiment.js"></script>
                             <script src="https://zaunmich.github.io/web-experiments/vis_experiment.js"></script>
-                            <!-- load the CSS via JS, as moodle doesn't allow link elements -->
                             <script>
+                                // load the CSS via JS, as moodle doesn't allow link elements
                                 var cssId = 'myCss'; // you could encode the css path itself to generate id..
                                 if (!document.getElementById(cssId)) {
                                     var head = document.getElementsByTagName('head')[0];
@@ -49,161 +55,166 @@
                                     link.media = 'all';
                                     head.appendChild(link);
                                 }
-                            </script>
+                            </script> -->
 
                             <!-- bootstrap controls -->
-                            <div class="row">
-                                <div class="col-auto">
-                                    <h5>
-                                        Simulation controls:
-                                    </h5>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-auto">
-                                    <button type="button" class="btn btn-primary" onclick="baseSim.start()">
-                                        <i class="fa fa-play"></i> Play</button>
-                                    <button type="button" class="btn btn-primary" onclick="baseSim.stop()">
-                                        <i class="fa fa-pause"></i> Pause</button>
-                                    <button type="button" class="btn btn-primary" onclick="reset()">
-                                        <i class="fa fa-undo"></i> Reset</button>
-                                </div>
-                                <div class="col-auto">
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <span class="input-group-text">Slow Motion</span>
-                                        </div>
-                                        <div class="form-control col-auto">
-                                            <input type="range" name="simSpeed" min="1" max="100" value="100" class="slider" oninput="setRealTimeFactor(this.value)">
-                                        </div>
-                                        <div class="input-group-append">
-                                            <span class="input-group-text">Real Time</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <br>
-
-                            <div class="row">
-                                <div class="col-auto">
-                                    <h5>
-                                        Controller parameters:
-                                    </h5>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Kp:</label>
-                                <div class="col-sm-10 col-lg-5 col-xl-3 input-group">
-                                    <input type="number" name="Kp" id="Kp" value="1" step=".1" class="form-control col-sm-6" style="height:auto;">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">[ ]</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Ki:</label>
-                                <div class="col-sm-10 col-lg-5 col-xl-3 input-group">
-                                    <input type="number" name="Ki" id="Ki" value="0" step=".1" class="form-control col-sm-6" style="height:auto;">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">[ ]</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Kd:</label>
-                                <div class="col-sm-10 col-lg-5 col-xl-3 input-group">
-                                    <input type="number" name="Kd" id="Kd" value="0" step=".1" class="form-control col-sm-6" style="height:auto;">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text">[ ]</span>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <br>
-
-                            <!-- plotting area goes here -->
-                            <div class="groot" id="groot" style="width: 800px;"></div>
-
-                            <br>
-
-                            <script>
-                                // create the figure
-                                let figure = d3subploter.createFigure('groot', 800, 600);
-
-                                // call the visualization class
-                                let baseVis = new BaseVis(figure);
-                                const plotTime = 20; // in seconds
-                                baseVis.plotTime = plotTime;
-
-                                // call the simulation class
-                                let baseSim = new FlexJointPID();
-                                // change the period of the reference signal
-                                baseSim.referencePeriod = 20;
-                                // change the magnitude of the reference signal
-                                baseSim.referenceMagnitude = Math.PI / 4;
-
-                                // connect the visualization to the simulation
-                                baseSim.plotFun = function(t, x, u, z, y, w) {
-                                    // add the new datapoint to the data
-                                    baseVis.data.push({
-                                        t: t,
-                                        u: u[0],
-                                        headAngle: rad2deg(y[0]),
-                                        armAngle: rad2deg(y[1]),
-                                        refAngle: rad2deg(w[0]),
-                                    });
-                                    baseVis.update();
-                                };
-
-                                // change the control law parameters
-                                window.addEventListener('load', (event) => {
-
-                                    baseSim.Kp = parseFloat($('#Kp').val());
-                                    baseSim.Ki = parseFloat($('#Ki').val());
-                                    baseSim.Kd = parseFloat($('#Kd').val());
-                                    $('#Kp').on('change', function() {
-                                        baseSim.Kp = parseFloat(this.value);
-                                    });
-                                    $('#Ki').on('change', function() {
-                                        baseSim.Ki = parseFloat(this.value);
-                                    });
-                                    $('#Kd').on('change', function() {
-                                        baseSim.Kd = parseFloat(this.value);
-                                    });
-                                });
-
-                                // reset both
-                                function reset() {
-                                    baseVis.reset();
-                                    baseSim.reset();
-                                }
-                                // slow-motion
-                                function setRealTimeFactor(input) {
-                                    let minFactor = 0.1,
-                                        maxFactor = 1;
-
-                                    let scale = d3.scaleLinear().domain([1, 100]).range([minFactor, maxFactor]);
-                                    let factor = scale(input);
-                                    baseSim.simMulti = factor
-                                    baseVis.plotTime = plotTime * factor;
-                                };
-                            </script>
-
-                            <!-- ############### end copying here for moodle import ############### -->
-
-                            <br>
-                            <a href="index.html">
-                                <button type="button" class="btn btn-secondary">Back to overview</button>
-                            </a>
-
-
                         </div>
+                        <div class="row">
+                            <div class="col-auto">
+                                <h5>
+                                    Simulation controls:
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-auto">
+                                <button type="button" class="btn btn-primary" onclick="baseSim.start()">
+                                        <i class="fa fa-play"></i> Play</button>
+                                <button type="button" class="btn btn-primary" onclick="baseSim.stop()">
+                                        <i class="fa fa-pause"></i> Pause</button>
+                                <button type="button" class="btn btn-primary" onclick="reset()">
+                                        <i class="fa fa-undo"></i> Reset</button>
+                            </div>
+                            <div class="col-auto">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Slow Motion</span>
+                                    </div>
+                                    <div class="form-control col-auto">
+                                        <input type="range" name="simSpeed" min="1" max="100" value="100" class="slider" oninput="setRealTimeFactor(this.value)">
+                                    </div>
+                                    <div class="input-group-append">
+                                        <span class="input-group-text">Real Time</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <br>
+
+                        <div class="row">
+                            <div class="col-auto">
+                                <h5>
+                                    Controller parameters:
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">Kp:</label>
+                            <div class="col-sm-10 col-lg-5 col-xl-3 input-group">
+                                <input type="number" name="Kp" id="Kp" value="1" step=".1" class="form-control col-sm-6" style="height:auto;">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">[ ]</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">Ki:</label>
+                            <div class="col-sm-10 col-lg-5 col-xl-3 input-group">
+                                <input type="number" name="Ki" id="Ki" value="0" step=".1" class="form-control col-sm-6" style="height:auto;">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">[ ]</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">Kd:</label>
+                            <div class="col-sm-10 col-lg-5 col-xl-3 input-group">
+                                <input type="number" name="Kd" id="Kd" value="0" step=".1" class="form-control col-sm-6" style="height:auto;">
+                                <div class="input-group-append">
+                                    <span class="input-group-text">[ ]</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <br>
+
+                        <!-- plotting area goes here -->
+                        <div class="groot" id="groot" style="width: 1000px;max-width: 100%;"></div>
+
+                        <br>
+
+                        <script>
+                            // create the figure
+                            let figure = d3subploter.createFigure('groot', 1000, 600);
+
+                            // call the visualization class
+                            let baseVis = new BaseVis(figure);
+                            const plotTime = 20; // in seconds
+                            baseVis.plotTime = plotTime;
+
+                            // call the simulation class
+                            let baseSim = new FlexJointPID();
+                            // change the period of the reference signal
+                            baseSim.referencePeriod = 20;
+                            // change the magnitude of the reference signal
+                            baseSim.referenceMagnitude = Math.PI / 4;
+
+                            // connect the visualization to the simulation
+                            baseSim.plotFun = function(t, x, u, z, y, w) {
+                                // add the new datapoint to the data
+                                baseVis.data.push({
+                                    t: t,
+                                    u: u[0],
+                                    headAngle: rad2deg(y[0]),
+                                    armAngle: rad2deg(y[1]),
+                                    refAngle: rad2deg(w[0]),
+                                });
+                                baseVis.update();
+
+                                // mouse drag causes disturbance?
+                                baseSim.disturbances = baseVis.disturbances;
+                            };
+
+                            // change the control law parameters
+                            window.addEventListener('load', (event) => {
+
+                                var Kp = document.getElementById('Kp');
+                                baseSim.Kp = parseFloat(Kp.value);
+                                Kp.addEventListener('change', () => baseSim.Kp = parseFloat(Kp.value));
+                                var Ki = document.getElementById('Ki');
+                                baseSim.Ki = parseFloat(Ki.value);
+                                Ki.addEventListener('change', () => {
+                                    baseSim.Ki = parseFloat(Ki.value);
+                                    baseSim.int_error = 0;
+                                });
+                                var Kd = document.getElementById('Kd');
+                                baseSim.Kd = parseFloat(Kd.value);
+                                Kd.addEventListener('change', () => baseSim.Kd = parseFloat(Kd.value));
+
+                            });
+
+                            // reset both
+                            function reset() {
+                                baseVis.reset();
+                                baseSim.reset();
+                            }
+                            // slow-motion
+                            function setRealTimeFactor(input) {
+                                let minFactor = 0.1,
+                                    maxFactor = 1;
+
+                                let scale = d3.scaleLinear().domain([1, 100]).range([minFactor, maxFactor]);
+                                let factor = scale(input);
+                                baseSim.simMulti = factor
+                                baseVis.plotTime = plotTime * factor;
+                            };
+                        </script>
+
+                        <!-- ############### end copying here for moodle import ############### -->
+
+                        <br>
+                        <a href="index.html">
+                            <button type="button" class="btn btn-secondary">Back to overview</button>
+                        </a>
+
+
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
 

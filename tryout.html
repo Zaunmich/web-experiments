@@ -131,13 +131,13 @@
                         <br>
 
                         <!-- plotting area goes here -->
-                        <div class="groot" id="groot" style="width: 800px;"></div>
+                        <div class="groot" id="groot" style="width: 1000px;max-width: 100%;"></div>
 
                         <br>
 
                         <script>
                             // create the figure
-                            let figure = d3subploter.createFigure('groot', 800, 600);
+                            let figure = d3subploter.createFigure('groot', 1000, 600);
 
                             // call the visualization class
                             let baseVis = new BaseVis(figure);
@@ -170,18 +170,19 @@
                             // change the control law parameters
                             window.addEventListener('load', (event) => {
 
-                                baseSim.Kp = parseFloat($('#Kp').val());
-                                baseSim.Ki = parseFloat($('#Ki').val());
-                                baseSim.Kd = parseFloat($('#Kd').val());
-                                $('#Kp').on('change', function() {
-                                    baseSim.Kp = parseFloat(this.value);
+                                var Kp = document.getElementById('Kp');
+                                baseSim.Kp = parseFloat(Kp.value);
+                                Kp.addEventListener('change', () => baseSim.Kp = parseFloat(Kp.value));
+                                var Ki = document.getElementById('Ki');
+                                baseSim.Ki = parseFloat(Ki.value);
+                                Ki.addEventListener('change', () => {
+                                    baseSim.Ki = parseFloat(Ki.value);
+                                    baseSim.int_error = 0;
                                 });
-                                $('#Ki').on('change', function() {
-                                    baseSim.Ki = parseFloat(this.value);
-                                });
-                                $('#Kd').on('change', function() {
-                                    baseSim.Kd = parseFloat(this.value);
-                                });
+                                var Kd = document.getElementById('Kd');
+                                baseSim.Kd = parseFloat(Kd.value);
+                                Kd.addEventListener('change', () => baseSim.Kd = parseFloat(Kd.value));
+
                             });
 
                             // reset both

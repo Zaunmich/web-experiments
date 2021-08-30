@@ -187,8 +187,14 @@ class BaseGraph {
     };
     // getters/setters
     get origin() { return this.subplot.d3; };
-    get xScale() { return this.subplot.xScale.copy().domain([this.settings.xMin, this.settings.xMax]); };
-    get yScale() { return this.subplot.yScale.copy().domain([this.settings.yMax, this.settings.yMin]); };
+    get xScale() {
+        if (!this._xScale) { this._xScale = this.subplot.xScale.copy(); }
+        return this._xScale.domain([this.settings.xMin, this.settings.xMax]);
+    };
+    get yScale() {
+        if (!this._yScale) { this._yScale = this.subplot.yScale.copy(); }
+        return this._yScale.domain([this.settings.yMax, this.settings.yMin]).nice();
+    };
     get linesArea() { return this.linesGroup.select(".linesArea"); }
     init() {
 
@@ -283,7 +289,9 @@ class BaseGraph {
             .attr("x", subplot.width / 2 + subplot.margin.left)
             .attr("y", 1)
             .text(settings.title);
-
+    };
+    drawLegend() {
+        // TODO
     }
 
 }
@@ -314,8 +322,8 @@ class DataTipGraph extends BaseGraph {
     callbackDataTip(area) {
         const tooltip = area.append("g");
         const self = this;
-        area.on("touchmove mousemove", (event) => this.moveCallback(event, tooltip));
-        area.on("touchend mouseleave", () => tooltip.call(this.drawCallout, null));
+        area.on("mousemove", (event) => this.moveCallback(event, tooltip));
+        area.on("mouseleave", () => tooltip.call(this.drawCallout, null));
     }
     moveCallback(event, tooltip) {
         throw "Overwrite me"
@@ -400,12 +408,12 @@ class BaseVis {
         // create 3 subplots in the figure
         let subPlotter = new d3subploter(this.figure);
         subPlotter.xDomain = [0, 37.5]; // start-end percentages of the figure
-        subPlotter.yDomain = [0, 50];
-        subPlotter.margin = { top: 10, right: 10, bottom: 35, left: 10 }; // in pixels
+        subPlotter.yDomain = [0, 100];
+        subPlotter.margin = { top: 10, right: 10, bottom: 10, left: 10 }; // in pixels
         let sub1 = subPlotter.create();
         subPlotter.xDomain = [37.5, 100];
         subPlotter.yDomain = [0, 50];
-        subPlotter.margin = { top: 15, right: 10, bottom: 35, left: 50 };
+        subPlotter.margin = { top: 25, right: 10, bottom: 35, left: 50 };
         subPlotter.alignment = { h: "l", v: "t" };
         let sub2 = subPlotter.create();
         subPlotter.yDomain = [50, 100];
@@ -424,7 +432,7 @@ class BaseVis {
         var flexJoint = {};
         flexJoint['base'] = { width: minDim * .25, height: minDim * .25, }; // size of the base-plate
         flexJoint['head'] = { width: minDim * .175, height: minDim * .125, length: minDim * .2 }; // size of the head-plate
-        flexJoint['arm'] = { width: minDim / 2.05, height: minDim * .020, length: minDim / 2 }; // size of the arm
+        flexJoint['arm'] = { width: minDim / 2.05, height: minDim * .030, length: minDim / 2 }; // size of the arm
         flexJoint['ref'] = { length: minDim / 2 }; // size of the reference
 
         // title
@@ -477,11 +485,11 @@ class BaseVis {
         origin.append("line")
             .attr("x1", 0)
             .attr("y1", 0)
-            .attr("x2", flexJoint.head.length)
+            .attr("x2", flexJoint.ref.length)
             .attr("y2", 0)
             .attr("transform", `rotate(${-0})`)
             .attr("pointer-events", "none")
-            .classed("headLine", true).attr("id", "head");
+            .classed("refLine", true).attr("id", "ref");
         origin.append("line")
             .attr("x1", 0)
             .attr("y1", 0)
@@ -493,11 +501,11 @@ class BaseVis {
         origin.append("line")
             .attr("x1", 0)
             .attr("y1", 0)
-            .attr("x2", flexJoint.ref.length)
+            .attr("x2", flexJoint.head.length)
             .attr("y2", 0)
             .attr("transform", `rotate(${-0})`)
             .attr("pointer-events", "none")
-            .classed("refLine", true).attr("id", "ref");
+            .classed("headLine", true).attr("id", "head");
 
         // update function
         function updateExperiment(data) {
@@ -507,7 +515,12 @@ class BaseVis {
                 refAngle = nowData.refAngle;
             if (isNaN(headAngle)) { headAngle = 0 };
             if (isNaN(armAngle)) { armAngle = 0 };
-            if (isNaN(refAngle)) { refAngle = 0 };
+            if (isNaN(refAngle)) {
+                refAngle = 0;
+                origin.selectAll('#ref').attr('display', 'none');
+            } else {
+                origin.selectAll('#ref').attr('display', 'block');
+            };
             // rotate the head
             origin.selectAll('#head').attr("transform", `rotate(${-headAngle})`);
             // rotate the arm
@@ -531,29 +544,36 @@ class BaseVis {
                 if (isNaN(self.dragArmPos) || isNaN(self.dragAngle)) {
                     return [0];
                 }
-                return [(self.dragAngle - armAngle) * self.dragArmPos / 4];
+
+                // console.log(`${(Math.cos(self.dragAngle - deg2rad(90 + armAngle))).toFixed(3)}°, ${self.dragDist}`);
+                const scalingFactor = 10;
+                return [Math.cos(self.dragAngle - deg2rad(90 + armAngle)) * self.dragDist * self.dragArmPos * scalingFactor];
             };
             self.disturbances = calcDisturbances(self, armAngle);
-            // console.log(self.disturbances);
         };
 
         // drag ?
         origin.select('.armRect').call(d3.drag()
             .on("start", (e) => {
                 self.dragArmPos = d3.pointer(e)[0] / flexJoint.arm.width;
+                let cursor = d3.pointer(e, origin.node());
+                self.dragAngle = (Math.atan2(-cursor[1], cursor[0]));
+                self.dragDist = Math.sqrt(cursor[0] ** 2 + cursor[1] ** 2) / flexJoint.arm.width;
                 ag.append('circle').attr("cx", d3.pointer(e, ag.node())[0]).attr("cy", 0).attr("r", 8).attr('id', 'dragArmCirc').attr('fill', 'none').attr('stroke', 'blue');
                 origin.append('circle').attr("cx", d3.pointer(e, origin.node())[0]).attr("cy", d3.pointer(e, origin.node())[1]).attr("r", 10).attr('id', 'dragMouseCirc').attr('fill', 'none').attr('stroke', 'red');
                 // console.log(`start drag: ${self.dragArmPos}`);
             })
             .on("drag", (e) => {
                 let cursor = d3.pointer(e, origin.node());
-                self.dragAngle = rad2deg(Math.atan2(-cursor[1], cursor[0]));
+                self.dragAngle = (Math.atan2(-cursor[1], cursor[0]));
+                self.dragDist = Math.sqrt(cursor[0] ** 2 + cursor[1] ** 2) / flexJoint.arm.width;
                 origin.select('#dragMouseCirc').attr("cx", cursor[0]).attr("cy", cursor[1]);
-                // console.log(`dragging: ${self.dragAngle}`);
+                // console.log(`dragging: ${self.dragAngle}°, ${self.dragDist}`);
             })
             .on("end", (e) => {
                 delete self.dragArmPos;
                 delete self.dragAngle;
+                delete self.dragDist;
                 ag.select('#dragArmCirc').remove();
                 origin.select('#dragMouseCirc').remove();
                 // console.log('drag end')
