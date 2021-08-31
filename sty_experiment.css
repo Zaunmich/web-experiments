@@ -6,6 +6,11 @@
 
 /* flexible joint classes */
 
+.zeroLine {
+    stroke: rgb(143, 143, 143);
+    stroke-width: 2px;
+}
+
 .baseRect {
     fill: rgb(143, 143, 143);
     stroke: black;
@@ -25,11 +30,12 @@
 .headLine {
     fill: none;
     stroke: rgb(164, 99, 224);
-    stroke-width: 3px;
+    stroke-width: 5px;
     stroke-dasharray: 4;
 }
 
 .outGraph .headLine {
+    stroke-width: 3px;
     stroke-dasharray: 0;
 }
 

@@ -432,8 +432,9 @@ class BaseVis {
         var flexJoint = {};
         flexJoint['base'] = { width: minDim * .25, height: minDim * .25, }; // size of the base-plate
         flexJoint['head'] = { width: minDim * .175, height: minDim * .125, length: minDim * .2 }; // size of the head-plate
-        flexJoint['arm'] = { width: minDim / 2.05, height: minDim * .030, length: minDim / 2 }; // size of the arm
-        flexJoint['ref'] = { length: minDim / 2 }; // size of the reference
+        flexJoint['arm'] = { width: minDim / 2.2, height: minDim * .030, length: minDim / 2.2 }; // size of the arm
+        flexJoint['ref'] = { length: minDim / 2.1 }; // size of the reference
+        flexJoint['zero'] = { length: minDim / 2 }; // size of the zero line
 
         // title
         subplot.d3.append("text").classed("titleLabel", true)
@@ -442,6 +443,14 @@ class BaseVis {
             .attr("x", subplot.width / 2 + subplot.margin.left)
             .attr("y", 1)
             .text("Experiment");
+
+        // // zero line
+        // origin.append("line")
+        //     .attr("x1", 0)
+        //     .attr("y1", 0)
+        //     .attr("x2", flexJoint.zero.length)
+        //     .attr("y2", 0)
+        //     .classed("zeroLine", true);
 
         // base plate
         origin.append("g").attr("id", "base")
@@ -616,7 +625,7 @@ class BaseVis {
                 // make a d3 line object
                 function mkLine(key) {
                     return d3.line().defined((d) => !isNaN(d[key]))
-                        .x((d, i, all) => graphPlot.xScale(arLast(all).t - d.t))
+                        .x((d, i, all) => graphPlot.xScale(d.t))
                         .y((d) => graphPlot.yScale(d[key]));
                 };
             }
@@ -646,6 +655,7 @@ class BaseVis {
 
         // create a update function
         function updateAll(data) {
+            // TODO: make sure that the data property is not growing indefinetly...
             // compute visible data
             let visibleData = d3.filter(data, (d, i, a) => d.t >= arLast(a).t - self.plotTime);
             // compute min/max values of all lines
@@ -653,10 +663,15 @@ class BaseVis {
             let yMax = d3.max(visibleData, (d) => d3.max([d.headAngle, d.armAngle, d.refAngle]));
             if (isNaN(yMin)) { yMin = 0 };
             if (isNaN(yMax)) { yMax = 0 };
+            let xMax = d3.max(visibleData, (d) => d.t);
+            let xMin = d3.max([0, xMax - self.plotTime]);
+            if (isNaN(xMin)) { xMin = 0 };
+            if (isNaN(xMax)) { xMax = 0 };
 
             graphPlot.settings.yMin = yMin;
             graphPlot.settings.yMax = yMax;
-            graphPlot.settings.xMax = self.plotTime;
+            graphPlot.settings.xMin = xMin;
+            graphPlot.settings.xMax = xMax;
             graphPlot.updateAll(visibleData);
         };
 
@@ -696,7 +711,7 @@ class BaseVis {
                 // make a d3 line object
                 function mkLine(key) {
                     return d3.line().defined((d) => !isNaN(d[key]))
-                        .x((d, i, all) => graphPlot.xScale(arLast(all).t - d.t))
+                        .x((d, i, all) => graphPlot.xScale(d.t))
                         .y((d) => graphPlot.yScale(d[key]));
                 };
             }
@@ -729,10 +744,15 @@ class BaseVis {
             let yMax = d3.max(visibleData, (d) => d3.max([d.u]));
             if (isNaN(yMin)) { yMin = 0 };
             if (isNaN(yMax)) { yMax = 0 };
+            let xMax = d3.max(visibleData, (d) => d.t);
+            let xMin = d3.max([0, xMax - self.plotTime]);
+            if (isNaN(xMin)) { xMin = 0 };
+            if (isNaN(xMax)) { xMax = 0 };
 
             graphPlot.settings.yMin = yMin;
             graphPlot.settings.yMax = yMax;
-            graphPlot.settings.xMax = self.plotTime;
+            graphPlot.settings.xMin = xMin;
+            graphPlot.settings.xMax = xMax;
             graphPlot.updateAll(visibleData);
         };
 
@@ -742,5 +762,45 @@ class BaseVis {
         let graphOut = { canvas: origin, settings: settings, update: updateAll };
         return graphOut;
     }
+
+};
+
+
+
+function downloadCSV(csv, filename) {
+    var csvFile;
+    var downloadLink;
+
+    // CSV File
+    csvFile = new Blob([csv], { type: "text/csv" });
+
+    // download link
+    downloadLink = document.createElement("a");
+
+    // file name
+    downloadLink.download = filename;
+
+    // create link to file
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+
+    // hide download link
+    downloadLink.style.display = "";
+
+    // add link to DOM
+    document.body.appendChild(downloadLink);
+
+    // click download link
+    downloadLink.click();
+}
+
+function exportData(data, filename) {
+    if (data.length == 0) { return };
+    var csv = [];
+
+    csv.push(Object.keys(data[0]).join(';'));
+    data.forEach((d) => csv.push(Object.values(d).join(';')));
+
+    // download csv file
+    downloadCSV(csv.join("\n"), filename);
 
 }
