@@ -124,6 +124,11 @@
 
                             <br>
 
+                            <button type="button" class="btn btn-success" onclick="exportData(baseVis.data, 'data.csv')">
+                                <i class="fa fa-file-download"></i> Download CSV</button>
+
+                            <br>
+
                             <script>
                                 // create the figure
                                 let figure = d3subploter.createFigure('groot', 1000, 600);
