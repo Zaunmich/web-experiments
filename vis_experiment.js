@@ -797,8 +797,8 @@ function exportData(data, filename) {
     if (data.length == 0) { return };
     var csv = [];
 
-    csv.push(Object.keys(data[0]).join(';'));
-    data.forEach((d) => csv.push(Object.values(d).join(';')));
+    csv.push(Object.keys(data[0]).join(','));
+    data.forEach((d) => csv.push(Object.values(d).join(',')));
 
     // download csv file
     downloadCSV(csv.join("\n"), filename);
