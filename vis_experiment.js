@@ -183,7 +183,16 @@ class BaseGraph {
     };
     // setup helper
     static defaultSettings() {
-        return { xMin: 0, xMax: 20, yMin: 0, yMax: 1, xLabel: 'xlabel', yLabel: 'ylabel', title: 'title', }
+        return {
+            xMin: 0,
+            xMax: 20,
+            yMin: 0,
+            yMax: 1,
+            xLabel: 'xlabel',
+            yLabel: 'ylabel',
+            title: 'title',
+            legend: { entries: [{ name: 'a', class: 'aLine' }, { name: 'b', class: 'bLine' }, ], spacing: 25, padding: 5, margin: { top: 0, left: 0 } },
+        }
     };
     // getters/setters
     get origin() { return this.subplot.d3; };
@@ -202,11 +211,13 @@ class BaseGraph {
         this.yAxisGroup = this.drawYaxis();
         this.linesGroup = this.drawLines();
         this.title = this.drawTitle();
+        this.legend = this.drawLegend();
     };
     updateAll(...args) {
         this.updateXaxis(args);
         this.updateYaxis(args);
         this.updateLines(args);
+        this.updateLegend(args);
     };
     drawXaxis() {
         let subplot = this.subplot,
@@ -291,9 +302,75 @@ class BaseGraph {
             .text(settings.title);
     };
     drawLegend() {
-        // TODO
-    }
+        let subplot = this.subplot,
+            origin = this.origin,
+            settings = this.settings;
 
+        let legend = settings.legend;
+
+        let legendGroup = origin.append("g").classed('legend', true);
+
+        return legendGroup;
+
+    };
+    updateLegend() {
+        let subplot = this.subplot,
+            origin = this.origin,
+            settings = this.settings,
+            legendGroup = this.legend;
+
+        let legend = settings.legend;
+        let entries = legend.entries;
+
+        if (entries.length == 0) {
+            return
+        };
+        // remove all contents
+        legendGroup.selectChildren().remove();
+
+        // first lets create the entries
+        legendGroup.selectAll('.legendEntries')
+            .data(entries)
+            .enter()
+            .append('g')
+            .attr("transform", (d, i) => { return `translate(0,${legend.spacing*(i+1)})` })
+            .classed('legendEntries', true)
+            .each(mkLegendEntry);
+
+        // helper function
+        function mkLegendEntry(d, i) {
+            let grp = d3.select(this)
+            grp.append("line")
+                .attr("class", d.class)
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", 20)
+                .attr("y2", 0);
+            grp.append("text").classed('legendText', true)
+                .attr("text-anchor", "left")
+                .attr("dominant-baseline", "middle")
+                .attr("x", 25)
+                .attr("y", 0)
+                .text(d.name);
+        };
+
+        // get the size of the legend entries
+        let bbox = legendGroup.node().getBBox();
+
+        // draw a box around them with padding
+        legendGroup.insert('rect', ':first-child')
+            .attr("x", bbox.x - legend.padding)
+            .attr("y", bbox.y - legend.padding)
+            .attr("height", bbox.height + legend.padding * 2)
+            .attr("width", bbox.width + legend.padding * 2)
+            .style("fill", "white")
+            .style("stroke", "black");
+
+        // finally move the legend in position
+        let newX = legend.margin.left;
+        let newY = legend.margin.top;
+        legendGroup.attr("transform", `translate(${newX},${newY})`);
+    }
 }
 
 class DataTipGraph extends BaseGraph {
@@ -602,6 +679,8 @@ class BaseVis {
         settings.xLabel = "Time in s";
         settings.yLabel = "Angle in deg";
         settings.title = "System response";
+        settings.legend.entries = [{ name: 'Arm', class: 'armLine' }, { name: 'Head', class: 'headLine' }, { name: 'Ref.', class: 'refLine' }];
+        settings.legend.margin = { left: -75, top: 20 };
 
         // create the scales, axes, makeFunctions, and updateFunctions
         const graphPlot = new DataTipGraph(subplot, settings);
@@ -678,7 +757,7 @@ class BaseVis {
         // update once to draw axes/grid/...
         updateAll([]);
 
-        let graphOut = { canvas: origin, settings: settings, update: updateAll };
+        let graphOut = { canvas: origin, settings: settings, update: updateAll, graph: graphPlot };
         return graphOut;
     };
     drawInput(subplot) {
@@ -692,6 +771,8 @@ class BaseVis {
         settings.xLabel = "Time in s";
         settings.yLabel = "Input in V";
         settings.title = "System input";
+        settings.legend.entries = [];
+
 
         // create the scales, axes, makeFunctions, and updateFunctions
         const graphPlot = new DataTipGraph(subplot, settings);

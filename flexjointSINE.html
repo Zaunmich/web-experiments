@@ -174,6 +174,8 @@
                                 });
                                 // remove the reference value from the plot
                                 baseSim.reference = [NaN];
+                                baseVis.outGraph.settings.legend.entries.pop();
+                                baseVis.update();
 
                                 // reset both
                                 function reset() {
