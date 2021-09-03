@@ -17,11 +17,11 @@
 </head>
 
 <body>
+
     <div class="container">
         <!-- warning sign -->
-
         <div class="row justify-content-md-center">
-            <div class="col-6">
+            <div class="col-md-6">
                 <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
                     <strong>Warning!</strong><br> Work in progress. Content is subject to change!
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -36,41 +36,51 @@
             <div class="col">
                 <div class="card mb-3">
                     <h3 class="card-header">
-                        Flexible joint experiments
+                        Flexible Joint Experiments
                     </h3>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <div class="d-flex justify-content-between">
-                                <span>Look at the step response</span>
-                                <a href="flexjointSTEP.html">
-                                    <button type="button" class="btn btn-primary">Start experiment!</button>
-                                </a>
-                            </div>
-                        </li>
-                        <li class="list-group-item">
-                            <div class="d-flex justify-content-between">
-                                <span>Look at the frequency response</span>
-                                <a href="flexjointSINE.html">
-                                    <button type="button" class="btn btn-primary">Start experiment!</button>
-                                </a>
-                            </div>
-                        </li>
-                        <li class="list-group-item">
-                            <div class="d-flex justify-content-between">
-                                <span>Tune a PID controller</span>
-                                <a href="flexjointPID.html">
-                                    <button type="button" class="btn btn-primary">Start experiment!</button>
-                                </a>
-                            </div>
-                        </li>
-                    </ul>
+                    <div class="row">
+                        <div class="col-md-3 d-flex align-items-stretch">
+                            <video class="" style="width:100%" playsinline="" autoplay="" muted="" loop="" preload="auto" title="(c) Quanser.com">
+                                    <source src="media/Quanser-Rotary-FlexJoint_Loop_FullSize_V1.mp4" type="video/mp4">
+                                </video>
+                        </div>
+                        <div class="col-md-9">
+                            <ul class="list-group list-group-flush border-left">
+                                <!-- TODO: hide the border when device is smaller than md and add border top then -->
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Look at the step response</span>
+                                        <a href="flexjointSTEP.html">
+                                            <button type="button" class="btn btn-primary">Start experiment!</button>
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Look at the frequency response</span>
+                                        <a href="flexjointSINE.html">
+                                            <button type="button" class="btn btn-primary">Start experiment!</button>
+                                        </a>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <span>Tune a PID controller</span>
+                                        <a href="flexjointPID.html">
+                                            <button type="button" class="btn btn-primary">Start experiment!</button>
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- github link -->
         <div class="row mt-3 justify-content-end">
-            <div class="col-2 text-right">
+            <div class="col-6 text-right">
                 Find me on <a href="https://github.com/Zaunmich/web-experiments">Github!</a>
             </div>
         </div>
