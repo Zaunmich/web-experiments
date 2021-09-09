@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flexible Joint Model</title>
+
+    <!-- 3rd party imports -->
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    <!-- fontawesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+    <!-- MathJax -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+
+    <!-- dev imports -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.0.1/dist/d3.min.js"></script>
+    <script src="sim_experiment.js"></script>
+    <script src="vis_experiment.js"></script>
+    <link rel="stylesheet" href="sty_experiment.css">
+</head>
+
+<body>
+
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-block p-3 mb-3">
+                    <h2>Flexible Joint Webexperiment: Model derivation</h2>
+                    <div class="box py-3 gerneralbox center clearfix">
+                        <div class="no-overflow">
+                            <p class="font-weight-light">
+                                Can you derive the mathematical model describing the flexible joint experiment?
+                            </p>
+
+                            <!-- ############### start copying here for moodle import ############### -->
+
+                            <h4>System describtion</h4>
+                            <p>
+                                The Rotatary Flexible Joint experiment can be used to investigate resonance phenomena and vibrations. This labatory experiment consits of 4 major parts:
+                            </p>
+                            <ol type="A">
+                                <li>the base,</li>
+                                <li>the head,</li>
+                                <li>two springs, and</li>
+                                <li>the arm.</li>
+                            </ol>
+                            <p>
+                                These parts are illustrated in the figure below:
+                            </p>
+                            <div class="d-flex justify-content-center">
+                                <object data="media/flexJointModelling.svg" type="image/svg+xml" style="width: 1000px;max-width: 100%;">
+                                    <!-- <img src="yourfallback.jpg" /> -->
+                                </object>
+                            </div>
+
+                            <p>
+                                The head is attached to the base, and can be rotated along the \(z\) axis via a motor (not shown in the figure). The rotation of the head relative to the \(x\) axis is denoted by \(\varphi_M\). Attached to the base is the arm, which can rotate freely
+                                along the \(z\) axis. Let the arm angle relative to the \(x\) axis be denoted \(\varphi_A\), while the angle relative to the head be denoted \(\alpha\). As shown in the figure, springs are attached to the head and the arm
+                                via screws, creating a connection between the arm and the head.
+                            </p>
+                            <div class="alert alert-success">
+                                <h4>Goal</h4>
+                                <p>The goal of this experiment is to control the arm angle \(\varphi_A\) by manipulating the input voltage \(V_M\) of the motor.</p>
+                            </div>
+                            <h4>Electrical subsystem</h4>
+                            <p>
+                                As mentioned earlier, the head is connected to a motor. The circuit diagram for the electrical parts is given below:
+                            </p>
+                            <div class="d-flex justify-content-center">
+                                <object data="media/flexJointMotor.svg" type="image/svg+xml" style="width: 500px;max-width: 100%;">
+                                    <!-- <img src="yourfallback.jpg" /> -->
+                                </object>
+                            </div>
+
+                            <p>
+                                The motor is driven by the input voltage \(V_M\) and current \(I_M\). The resistance of the windings in the motor is given by \(R_M\), and the back-emf voltage is given by \(u_M\). All friction losses are combined into the viscous friction coefficient
+                                \(B_M\), which includes the friction losses in the bearings, the gearbox, and the brushes. The rotation angle of the motor shaft is denoted by \(\varphi_M\) (=rotation angle of the head), while its torque is denoted by
+                                \(M_M\). Finally, the torque applied to the head is given by \(T\).
+                            </p>
+                            <h4>Mechanical subsystem</h4>
+                            <p>
+                                Let us look at the moving parts of the experiment.
+                            </p>
+                            <div class="d-flex justify-content-center">
+                                <object data="media/flexJointMechanic.svg" type="image/svg+xml" style="width: 500px;max-width: 100%;">
+                                    <!-- <img src="yourfallback.jpg" /> -->
+                                </object>
+                            </div>
+                            <p>
+                                The equivalent moment of inertia \(J_{eq}\) represents the combined moment of inertia of the motor, the gearbox, and the head with respect to the \(z\) axis. Likewise, the moment of inertia along the \(z\) axis for the arm is given by \(J_A\). The damping
+                                coefficient in the pivot between the arm and the head is denoted by \(c\), and the equvalent stiffness of the springs is denoted by \(K_S\).
+                            </p>
+                            <br>
+                            <h4>Modeling</h4>
+                            In the following subsection the equations needed for deriving the system equations are given.
+                            <br>
+                            <br>
+                            <h5>Motor</h5>
+                            <p>
+                                The back-emf voltage can be computed via \[u_M = K_M \dot{\varphi}_M,\] while the torque produced by the motor can be computed via \[M_M = K_A I_M.\] Both \(K_M\) and \(K_A\) are constant motor parameters. The combined friction losses are given via \[M_B
+                                = B_M \dot{\varphi}_M. \]
+                            </p>
+                            <h5>Pivot</h5>
+                            <p>
+                                The viscious damping in the pivot point between the head and the arm can be found via \[M_c = c \dot{\alpha}. \]
+                            </p>
+                            <h5>Springs</h5>
+                            <p>
+                                The torque generated by the sprigns is approximated by a linear torsion spring with a stiffness \( K_S \). Following this, the potential energy of the springs can be found via \[V = \frac{1}{2} K_S \alpha^2.\]
+                            </p>
+
+                            <div class="alert alert-primary">
+                                <h5>Tasks</h5>
+                                <p>
+                                    The following tasks should be solved:
+                                </p>
+                                <ul>
+                                    <li>
+                                        Derive the equation for the electrical subsystem, describing the torque \(T\) as a function of \(V_M\).
+                                    </li>
+                                    <li>
+                                        Derive the differential equations describing the mechanical subsystem. This can be done (for example) by finding the Lagrangian equations.
+                                    </li>
+                                    <li>
+                                        Combine the results of the first two points to write down the system of differential equations describing the dynamics of the flexible joint experiment.
+                                    </li>
+                                    <li>
+                                        Provide the state-space model describing the dynamics of the flexible joint experiment. Pay close attention to the matrices describing the system output.
+                                    </li>
+                                </ul>
+                            </div>
+                            <h5>Parameters</h5>
+                            The nummerical values of the parameters are given in the table below:
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Variable</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">Value</th>
+                                        <th scope="col">Unit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">\(R_M\)</th>
+                                        <td>Motor resistance</td>
+                                        <td>2.604</td>
+                                        <td>\(\Omega\)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">\(K_M\)</th>
+                                        <td>Motor constant</td>
+                                        <td>0.558</td>
+                                        <td>\(\mathrm{Vs}/\mathrm{rad}\)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">\(K_A\)</th>
+                                        <td>Motor constant</td>
+                                        <td>0.558</td>
+                                        <td>\(\mathrm{Nm}/\mathrm{A}\)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">\(B_M\)</th>
+                                        <td>Motor friction</td>
+                                        <td>0.0696</td>
+                                        <td>\(\mathrm{Nms}/\mathrm{rad}\)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">\(J_{eq}\)</th>
+                                        <td>Equivalent moment of inertia</td>
+                                        <td>0.0036229</td>
+                                        <td>\(\mathrm{kg}\mathrm{m}^2\)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">\(J_{A}\)</th>
+                                        <td>Arm moment of inertia</td>
+                                        <td>0.0039716</td>
+                                        <td>\(\mathrm{kg}\mathrm{m}^2\)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">\(K_{S}\)</th>
+                                        <td>Spring stiffness</td>
+                                        <td>0.2015</td>
+                                        <td>\(\mathrm{Nm}/\mathrm{rad}\)</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">\(c\)</th>
+                                        <td>Pivot damping coefficient</td>
+                                        <td>0.003217</td>
+                                        <td>\(\mathrm{Nms}/\mathrm{rad}\)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+
+
+                            <!-- ############### end copying here for moodle import ############### -->
+
+                            <br>
+                            <a href="index.html">
+                                <button type="button" class="btn btn-secondary">Back to overview</button>
+                            </a>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+
+</html>
