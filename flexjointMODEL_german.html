@@ -32,169 +32,176 @@
         <div class="row">
             <div class="col-12">
                 <div class="card card-block p-3 mb-3">
-                    <h2>Flexible Joint Webexperiment: Model derivation</h2>
+                    <h2>Flexible Joint Webexperiment: Modellierung</h2>
                     <div class="box py-3 gerneralbox center clearfix">
                         <div class="no-overflow">
                             <p class="font-weight-light">
-                                Can you derive the mathematical model describing the flexible joint experiment?
+                                Können Sie das mathematische Model, welches das Flexible Joint Experiment abbildet herleiten?
                             </p>
 
                             <!-- ############### start copying here for moodle import ############### -->
 
-                            <h4>System describtion</h4>
+                            <h4>Systembeschreibung</h4>
                             <p>
-                                The Rotatary Flexible Joint experiment can be used to investigate resonance phenomena and vibrations. This labatory experiment consits of 4 major parts:
+                                Das <em>Rotatary Flexible Joint experiment</em> kann verwendet werden um Resonanz- und Vibrationsphänomene zu untersuchen. Dieses Experiment besteht aus 4 Hauptkomponenten:
                             </p>
                             <ol type="A">
-                                <li>the base,</li>
-                                <li>the head,</li>
-                                <li>two springs, and</li>
-                                <li>the arm.</li>
+                                <li>die Basis,</li>
+                                <li>den Kopf,</li>
+                                <li>zwei Federn, und</li>
+                                <li>den Arm.</li>
                             </ol>
                             <p>
-                                These parts are illustrated in the figure below:
+                                Diese Komponenten sind in der untenstehenden Abbildung illustriert:
                             </p>
                             <div class="d-flex justify-content-center">
                                 <object data="media/flexJointModelling.svg" type="image/svg+xml" style="width: 1000px;max-width: 100%;">
                                     <!-- <img src="yourfallback.jpg" /> -->
                                 </object>
-                            </div>
-
+                            </div><br>
                             <p>
-                                The head is attached to the base, and can be rotated along the \(z\) axis via a motor (not shown in the figure). The rotation of the head relative to the \(x\) axis is denoted by \(\varphi_M\). Attached to the head is the arm, which can rotate freely
-                                along the \(z\) axis. Let the arm angle relative to the \(x\) axis be denoted \(\varphi_A\), while the angle relative to the head be denoted \(\alpha\). As shown in the figure, springs are attached to the head and the arm
-                                via screws, creating a connection between the arm and the head.
+                                Der Kopf ist an der Basis befestigt und kann über einen Motor (in der Abbildung nicht dargestellt) um die \(z\)-Achse gedreht werden.
+                                Der Winkel des Kopfes in Bezug auf die \(x\)-Achse wird mit \(\varphi_M\) bezeichnet.
+                                An dem Kopf ist der Arm befestigt, welcher sich frei um die \(z\)-Achse frei drehen kann.
+                                Der Absolutwinkel des Arms zur \(x\)-Achse wird mit \(\varphi_A\) bezeichnet, während der Winkel relativ zum Kopf mit \(\alpha\) bezeichnet wird.
+                                Wie in der Abbildung dargestellt, sind die zwei Federn sowohl am Kopf als auch am Arm befestigt, wodurch beide Komponenten verbunden werden.
                             </p>
                             <div class="alert alert-success">
-                                <h4>Goal</h4>
-                                <p>The goal of this experiment is to control the arm angle \(\varphi_A\) by manipulating the input voltage \(V_M\) of the motor.</p>
+                                <h4>Ziel</h4>
+                                <p>
+                                    Das Ziel dieses Experiments ist es den Winkel des Arms \(\varphi_A\) (<em>=Regelgröße</em>) zu regeln. Dies wird erreicht über die Manipulation der Eingangsspannung des Motors \(V_M\) (<em>=Stellgröße</em>).
+                                </p>
                             </div>
-                            <h4>Electrical subsystem</h4>
+                            <h4>Elektrisches Teilsystem</h4>
                             <p>
-                                As mentioned earlier, the head is connected to a motor. The circuit diagram for the electrical parts is given below:
+                                Wie bereits vorher erwähnt, ist der Kopf mit einem Motor verbunden. Der elektrische Schaltkreis dafür ist in folgender Abbildung dargestellt:
                             </p>
                             <div class="d-flex justify-content-center">
                                 <object data="media/flexJointMotor.svg" type="image/svg+xml" style="width: 500px;max-width: 100%;">
                                     <!-- <img src="yourfallback.jpg" /> -->
                                 </object>
-                            </div>
-
+                            </div><br>
                             <p>
-                                The motor is driven by the input voltage \(V_M\) and current \(I_M\). The resistance of the windings in the motor is given by \(R_M\), and the back-emf voltage is given by \(u_M\). All friction losses are combined into the viscous friction coefficient
-                                \(B_M\), which includes the friction losses in the bearings, the gearbox, and the brushes. The rotation angle of the motor shaft is denoted by \(\varphi_M\) (=rotation angle of the head), while its torque is denoted by
-                                \(M_M\). Finally, the torque applied to the head is given by \(T\).
+                                Der Motor wird durch die Eingangsspannung \(V_M\) und den Strom \(I_M\) angetrieben.
+                                Der Widerstand der Wicklungen im Motor ist durch \(R_M\) gegeben, und die Gegen-EMK-Spannung ist durch \(u_M\) gegeben.
+                                Alle Reibungsverluste werden in einem viskosen Reibungskoeffizienten \(B_M\) zusammengefasst, welcher die Reibungsverluste in den Lagern, im Getriebe und in den Bürsten umfasst.
+                                Der Drehwinkel der Motorwelle wird mit \(\varphi_M\) bezeichnet (=Drehwinkel des Kopfes), während das Motordrehmoment als \(M_M\) bezeichnet wird.
+                                Das auf den Kopf schlussendlich wirkende Drehmoment wird durch \(T\) angegeben.
                             </p>
-                            <h4>Mechanical subsystem</h4>
+                            <h4>Mechanisches Teilsystem</h4>
                             <p>
-                                Let us look at the moving parts of the experiment.
+                                Die beweglichen Teile des Experiments sind nachfolgend nochmals dargestellt:
                             </p>
                             <div class="d-flex justify-content-center">
                                 <object data="media/flexJointMechanic.svg" type="image/svg+xml" style="width: 500px;max-width: 100%;">
                                     <!-- <img src="yourfallback.jpg" /> -->
                                 </object>
-                            </div>
+                            </div><br>
                             <p>
-                                The equivalent moment of inertia \(J_{eq}\) represents the combined moment of inertia of the motor, the gearbox, and the head with respect to the \(z\) axis. Likewise, the moment of inertia along the \(z\) axis for the arm is given by \(J_A\). The damping
-                                coefficient in the pivot between the arm and the head is denoted by \(c\), and the equvalent stiffness of the springs is denoted by \(K_S\).
+                                Das äquivalente Massenträgheitsmoment \(J_{eq}\) bezeichnet das kombinierte Massenträgheitsmoment des Motors, des Getriebes und des Kopfes bezüglich der \(z\) Achse.
+                                Gleichfalls wird das Massenträgheitsmoment des Arms bezüglich der \(z\) Achse als \(J_A\) bezeichnet.
+                                Der viskose Dämpfungskoeffizient im Drehpunkt zwischen Arm und Kopf wird als \(c\) angegeben und die äquivalente Federsteifigkeit als \(K_S\).
                             </p>
                             <br>
-                            <h4>Modeling</h4>
-                            In the following subsection the equations needed for deriving the system equations are given.
+                            <h4>Modellierung</h4>
+                            In den folgenden Abschnitten werden die Gleichungen, welche für die Modellierung benötigt werden, angegeben.
                             <br>
                             <br>
                             <h5>Motor</h5>
                             <p>
-                                The back-emf voltage can be computed via \[u_M = K_M \dot{\varphi}_M,\] while the torque produced by the motor can be computed via \[M_M = K_A I_M.\] Both \(K_M\) and \(K_A\) are constant motor parameters. The combined friction losses are given via \[M_B
-                                = B_M \dot{\varphi}_M. \]
+                                Die Gegen-EMK-Spannung kann berechnet werden mittels \[u_M = K_M \dot{\varphi}_M,\] während das Motordrehmoment als \[M_M = K_A I_M\] gegeben ist.
+                                Sowohl \(K_M\), als auch \(K_A\) können als konstante Motorparameter angenommen werden.
+                                Das Drehmoment der kombinierten Reibungsverluste ist gegeben als \[M_B = B_M \dot{\varphi}_M. \]
                             </p>
-                            <h5>Pivot</h5>
+                            <h5>Drehpunkt</h5>
                             <p>
-                                The viscious damping in the pivot point between the head and the arm can be found via \[M_c = c \dot{\alpha}. \]
+                                Die viskose Dämpfung im Drehpunkt zwischen den Kopf und den Arm ist gegeben als \[M_c = c \dot{\alpha}. \]
                             </p>
-                            <h5>Springs</h5>
+                            <h5>Federn</h5>
                             <p>
-                                The torque generated by the sprigns is approximated by a linear torsion spring with a stiffness \( K_S \). Following this, the potential energy of the springs can be found via \[V = \frac{1}{2} K_S \alpha^2.\]
+                                Die Federn werden näherungsweise als lineare Torsionsfedern mit einer Federsteifigkeit \( K_S \) angenommen.
+                                Dadurch vereinfacht sich die Berechnung der potentiellen Energie, welche in den Federn gespeichert wird, zu \[V = \frac{1}{2} K_S \alpha^2.\]
                             </p>
 
                             <div class="alert alert-primary">
-                                <h5>Tasks</h5>
+                                <h5>Aufgaben</h5>
                                 <p>
-                                    The following tasks should be solved:
+                                    Die folgenden Aufgabenpunkte sind auszuarbeiten:
                                 </p>
                                 <ul>
                                     <li>
-                                        Derive the equation for the electrical subsystem, describing the torque \(T\) as a function of \(V_M\).
+                                        Leiten Sie die Gleichung für das elektrische Teilsystem her, so dass das Drehmoment \(T\) als Funktion von \(V_M\) angegeben werden kann.
                                     </li>
                                     <li>
-                                        Derive the differential equations describing the mechanical subsystem. This can be done (for example) by finding the Lagrangian equations.
+                                        Leiten Sie die Differentialgleichungen her, welche das mechanische Teilsystem beschreiben. Dies kann (zum Beispiel) mittels Aufstellens der Lagrange-Gleichungen getan werden.
                                     </li>
                                     <li>
-                                        Combine the results of the first two points to write down the system of differential equations describing the dynamics of the flexible joint experiment.
+                                        Kombinieren Sie die Ergebnisse aus den ersten zwei Punkten und schreiben Sie das System von Differentialgleichungen an, welche das gesamte Experiment beschreibt.
                                     </li>
                                     <li>
-                                        Provide the state-space model describing the dynamics of the flexible joint experiment. Pay close attention to the matrices describing the system output.
+                                        Geben Sie ebenfalls das Zustandsraummodell an, welche das Verhalten des gesamten Experiments darstellt. Achten Sie vor allem auf den Vektoren, welche den Ausgang des Systems (=<em>Regelgröße</em>) definieren.
                                     </li>
                                 </ul>
                             </div>
-                            <h5>Parameters</h5>
-                            The nummerical values of the parameters are given in the table below:
+                            <h5>Parameter</h5>
+                            Die nummerischen Werte der Parameter sind in der untenstehenden Tabelle angegeben:
 
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
                                             <th scope="col">Variable</th>
-                                            <th scope="col">Description</th>
-                                            <th scope="col">Value</th>
-                                            <th scope="col">Unit</th>
+                                            <th scope="col">Beschreibung</th>
+                                            <th scope="col">Wert</th>
+                                            <th scope="col">Einheit</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <th scope="row">\(R_M\)</th>
-                                            <td>Motor resistance</td>
+                                            <td>Motorwiederstand</td>
                                             <td>2.604</td>
                                             <td>\(\Omega\)</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">\(K_M\)</th>
-                                            <td>Motor constant</td>
+                                            <td>Motorkonstante</td>
                                             <td>0.558</td>
                                             <td>\(\mathrm{Vs}/\mathrm{rad}\)</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">\(K_A\)</th>
-                                            <td>Motor constant</td>
+                                            <td>Motorkonstante</td>
                                             <td>0.558</td>
                                             <td>\(\mathrm{Nm}/\mathrm{A}\)</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">\(B_M\)</th>
-                                            <td>Motor friction</td>
+                                            <td>Motorreibung</td>
                                             <td>0.0696</td>
                                             <td>\(\mathrm{Nms}/\mathrm{rad}\)</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">\(J_{eq}\)</th>
-                                            <td>Equivalent moment of inertia</td>
+                                            <td>Äquivalentes Massenträgheitsmoment</td>
                                             <td>0.0036229</td>
                                             <td>\(\mathrm{kg}\mathrm{m}^2\)</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">\(J_{A}\)</th>
-                                            <td>Arm moment of inertia</td>
+                                            <td>Massenträgheitsmoment des Arms</td>
                                             <td>0.0039716</td>
                                             <td>\(\mathrm{kg}\mathrm{m}^2\)</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">\(K_{S}\)</th>
-                                            <td>Spring stiffness</td>
+                                            <td>Federsteifigkeit</td>
                                             <td>0.2015</td>
                                             <td>\(\mathrm{Nm}/\mathrm{rad}\)</td>
                                         </tr>
                                         <tr>
                                             <th scope="row">\(c\)</th>
-                                            <td>Pivot damping coefficient</td>
+                                            <td>Reibungskoeffizienten im Drehpunkt</td>
                                             <td>0.003217</td>
                                             <td>\(\mathrm{Nms}/\mathrm{rad}\)</td>
                                         </tr>
