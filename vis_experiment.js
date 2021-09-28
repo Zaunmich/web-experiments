@@ -233,7 +233,7 @@ class BaseGraph {
         xAxisGroup.append("text").classed("axisLabel", true)
             .attr("text-anchor", "end")
             .attr("x", subplot.width + subplot.margin.left - 1)
-            .attr("y", subplot.margin.bottom - 1)
+            .attr("y", subplot.margin.bottom - 10)
             .text(settings.xLabel);
 
         return xAxisGroup;
@@ -489,13 +489,13 @@ class BaseVis {
         subPlotter.margin = { top: 10, right: 10, bottom: 10, left: 10 }; // in pixels
         let sub1 = subPlotter.create();
         subPlotter.xDomain = [37.5, 100];
-        subPlotter.yDomain = [0, 50];
-        subPlotter.margin = { top: 25, right: 10, bottom: 35, left: 50 };
-        subPlotter.alignment = { h: "l", v: "t" };
-        let sub2 = subPlotter.create();
         subPlotter.yDomain = [50, 100];
         subPlotter.alignment = { h: "l", v: "t" };
+        subPlotter.margin = { top: 25, right: 30, bottom: 50, left: 50 };
         let sub3 = subPlotter.create();
+        subPlotter.yDomain = [0, 50];
+        subPlotter.alignment = { h: "l", v: "t" };
+        let sub2 = subPlotter.create();
 
         return [sub1, sub2, sub3];
     };
@@ -555,6 +555,13 @@ class BaseVis {
             .attr("width", flexJoint.arm.width)
             .attr("height", flexJoint.arm.height)
             .classed("armRect", true);
+        // create a larger area for the dragging 
+        ag.append("rect").attr("id", "armDragArea")
+            .attr("x", 0)
+            .attr("y", -flexJoint.arm.height * 20 / 2)
+            .attr("width", flexJoint.arm.width)
+            .attr("height", flexJoint.arm.height * 20)
+            .attr("fill", " rgba(0,0,0,0)");
 
         // springs
         origin.append("line")
@@ -623,7 +630,7 @@ class BaseVis {
 
             if (!self.dragExperimentEnabled) {
                 // TODO: re-enable the dragging function once it has been disabled
-                origin.select('.armRect').on('mousedown.drag', null);
+                origin.select('#armDragArea').on('mousedown.drag', null);
             }
 
             let calcDisturbances = function(self, armAngle) {
@@ -639,7 +646,7 @@ class BaseVis {
         };
 
         // drag ?
-        origin.select('.armRect').call(d3.drag()
+        origin.select('#armDragArea').call(d3.drag()
             .on("start", (e) => {
                 self.dragArmPos = d3.pointer(e)[0] / flexJoint.arm.width;
                 let cursor = d3.pointer(e, origin.node());
@@ -714,21 +721,20 @@ class BaseVis {
         graphPlot.moveCallback = function(event, tooltip) {
             let xCursor = graphPlot.xScale.invert(d3.pointer(event)[0]);
             let yCursor = graphPlot.yScale.invert(d3.pointer(event)[1]);
-            let tnow = arLast(self.data).t;
             let bisect = d3.bisector((d) => d.t).left;
-            let idxCursor = bisect(self.data, tnow - xCursor, 1);
+            let idxCursor = bisect(self.data, xCursor, 1);
             let dataCursor = self.data[idxCursor];
 
             let tooltipText
             try {
-                tooltipText = `Time: ${(tnow - dataCursor.t).toFixed(2)}` +
-                    `\nArm: ${(dataCursor.armAngle).toFixed(2)}°`;
+                tooltipText = `Time: ${(dataCursor.t).toFixed(2)}s` +
+                    `\nArm: \u00A0\u00A0${(dataCursor.armAngle).toFixed(2)}°`;
                 if (!isNaN(dataCursor.headAngle)) { tooltipText += `\nHead: ${(dataCursor.headAngle).toFixed(2)}°` };
                 if (!isNaN(dataCursor.refAngle)) { tooltipText += `\nReference: ${(dataCursor.refAngle).toFixed(2)}°` };
             } catch (e) {
 
             }
-            tooltip.attr("transform", `translate(${graphPlot.xScale(xCursor)},${graphPlot.yScale(yCursor)})`)
+            tooltip.attr("transform", `translate(${graphPlot.xScale(xCursor)},${graphPlot.subplot.height+graphPlot.subplot.margin.top})`)
                 .call(graphPlot.drawCallout, tooltipText);
         }
 
@@ -808,12 +814,12 @@ class BaseVis {
 
             let tooltipText
             try {
-                tooltipText = `Time: ${(tnow - dataCursor.t).toFixed(2)}` +
+                tooltipText = `Time: ${(tnow - dataCursor.t).toFixed(2)}s` +
                     `\nInput: ${(dataCursor.u).toFixed(2)}V`;
             } catch (e) {
 
             }
-            tooltip.attr("transform", `translate(${graphPlot.xScale(xCursor)},${graphPlot.yScale(yCursor)})`)
+            tooltip.attr("transform", `translate(${graphPlot.xScale(xCursor)},${graphPlot.subplot.height+graphPlot.subplot.margin.top})`)
                 .call(graphPlot.drawCallout, tooltipText);
         }
 
