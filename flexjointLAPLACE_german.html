@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flexible Joint Model</title>
+    <link rel="shortcut icon" type="image/jpg" href="media/favicon.png" />
+    <!-- 3rd party imports -->
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    <!-- fontawesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css" integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+    <!-- MathJax -->
+    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+
+    <!-- dev imports -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.0.1/dist/d3.min.js"></script>
+    <script src="sim_experiment.js"></script>
+    <script src="vis_experiment.js"></script>
+    <link rel="stylesheet" href="sty_experiment.css">
+</head>
+
+<body>
+
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-block p-3 mb-3">
+                    <h2>Flexible Joint Webexperiment: Laplace transformation</h2>
+                    <div class="box py-3 gerneralbox center clearfix">
+                        <div class="no-overflow">
+                            <p class="font-weight-light">
+                                Untersuchen Sie das verhalten des Experiments im Laplace-Bereich!
+                            </p>
+
+                            <!-- ############### start copying here for moodle import ############### -->
+
+                            <h4>Teilaufgabe 3: Laplace-Transformation</h4>
+                            <p>
+                                Das <em>Rotatary Flexible Joint Experiment</em> kann durch folgende Differentialgleichungen beschrieben werden:
+                            </p>
+                            <p>
+                                $$
+                                \begin{aligned}
+                                \ddot{\alpha} &= \ddot{\varphi}_A+a\dot{\varphi}_A-b\dot{\alpha}-c\alpha-dV_M\\
+                                \ddot{\varphi}_A &= -e\dot{\alpha}-f\alpha
+                                \end{aligned}
+                                $$
+                            </p>
+                            <p>
+                                Die in den vorherigen Aufgaben auftretenden Parameter wurden zu neuen Parametern \(a\), \(b\), \(c\), \(d\), \(e\) und \(f\) zusammengefasst.
+                                Wie in Teilaufgabe 1 beschreibt \(V_M\) die Spannung am Motor und \(\alpha\) den Winkel zwischen Kopf und Arm.
+                                Hier hängen die Gleichungen nun noch vom Absolutwinkel des Arms \(\varphi_A\) ab (Anmerkung: \(\varphi_A = \varphi_M + \alpha\)). 
+                            </p>
+                            
+                            <div class="alert alert-primary">
+                                <h5>Aufgaben</h5>
+                                <p>
+                                    Die folgenden Aufgabenpunkte sind auszuarbeiten:
+                                </p>
+                                <ul>
+                                    <li>
+                                        Führen Sie ein Laplace-Transformation der Differentialgleichungen durch.
+                                    </li>
+                                    <li>
+                                        Bestimmen Sie die Übertragungsfunktion \(G(s) = Y(s)/U(s)\) der Regelstrecke (Beachten Sie: \(u(t) = V_M(t)\), \(y(t) = \varphi_A(t)\)).
+                                    </li>
+                                    <li>
+                                        Am Eingang \(u(t)\) wird ein <b>Impuls</b> aufgebracht. Verwenden Sie den Endwertsatz der Laplace-Transformation um zu bestimmen, in welcher Position das System zur Ruhe kommt. (\(\varphi_A\) für \(t\to\infty\)).
+                                    </li>
+                                    <li>
+                                        Am Eingang \(u(t)\) wird ein <b>Sprung</b> aufgebracht. Verwenden Sie den Endwertsatz der Laplace-Transformation um zu bestimmen, in welcher Position das System zur Ruhe kommt. (\(\varphi_A\) für \(t\to\infty\)).
+                                    </li>
+                                    <li>
+                                        Verwenden Sie das Webexperiment, um Ihre Ergebnisse zu überprüfen.
+                                    </li>
+                                </ul>
+                            </div>
+                            <h5>Parameter</h5>
+                            Die numerischen Werte der Parameter sind in der untenstehenden Tabelle angegeben:
+
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Variable</th>
+                                            <th scope="col">Wert</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th scope="row">\(a\)</th>
+                                            <td>52.2155</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">\(b\)</th>
+                                            <td>53.1034</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">\(c\)</th>
+                                            <td>55.6184</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">\(d\)</th>
+                                            <td>59.1476</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">\(e\)</th>
+                                            <td>0.8100</td>
+                                        </tr>
+                                        <tr>
+                                            <th scope="row">\(f\)</th>
+                                            <td>50.7352</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+
+                            <!-- ############### end copying here for moodle import ############### -->
+
+                            <br>
+                            <a href="index.html">
+                                <button type="button" class="btn btn-secondary">Back to overview</button>
+                            </a>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</body>
+
+</html>
