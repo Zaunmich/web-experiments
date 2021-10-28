@@ -29,11 +29,11 @@
         <div class="row">
             <div class="col-12">
                 <div class="card card-block p-3 mb-3">
-                    <h2>Flexible Joint Webexperiment: Impulse response</h2>
+                    <h2>Flexible Joint Webexperiment: Impulse and step response</h2>
                     <div class="box py-3 gerneralbox center clearfix">
                         <div class="no-overflow">
                             <p>
-                                Look at the impulse response of the flexible joint.
+                                Look at the response of the flexible joint to an <em>unit impulse</em> and <em>unit step</em>.
                             </p>
 
                             <!-- ############### start copying here for moodle import ############### -->
@@ -90,6 +90,25 @@
                                     </div>
                                 </div>
 
+                                <br>
+
+                                <div class="row">
+                                    <div class="col-auto">
+                                        <h5>
+                                            Input controls:
+                                        </h5>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label text-nowrap">Input type:</label>
+                                    <div class="col-sm-10 col-lg-5 col-xl-3 input-group">
+                                        <select name="type" id="type" class="form-control col-sm-6" style="height:auto;">
+                                            <option value="impulse">Impulse</option>
+                                            <option value="step">Step</option>
+                                        </select>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <br>
@@ -135,11 +154,21 @@
                                 // change the control law
                                 window.addEventListener('load', (event) => {
 
+                                    var inputtype = document.getElementById('type');
+
                                     baseSim.controlLaw = function(t, x, w, z) {
                                         let u = 0;
-                                        if (t == 0) {
-                                            u = 1 / this.Ts;
-                                        }
+                                        if (inputtype.value == 'impulse') {
+                                            // impulse is only active at t=0
+                                            if (t == 0) {
+                                                u = 1 / this.Ts;
+                                            }
+                                        } else if (inputtype.value == 'step') {
+                                            // step is only active at t>0
+                                            if (t > 0) {
+                                                u = 1;
+                                            }
+                                        };
                                         return [u];
                                     };
                                 });
