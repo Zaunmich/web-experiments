@@ -170,7 +170,7 @@
                                     frequency.addEventListener('change', () => baseSim.frequency = parseFloat(frequency.value));
 
                                     baseSim.controlLaw = function(t, x, w, z) {
-                                        return [Math.sin(t * Math.PI * 2 * this.frequency) * this.amplitude];
+                                        return [Math.cos(t * Math.PI * 2 * this.frequency) * this.amplitude];
                                     };
 
                                 });
